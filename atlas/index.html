@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atlas del Movimiento · Apicus Partners</title>
+<style>
+  :root{--navy:#0A1E3F;--navy2:#122a52;--oro:#C9A961;--oro2:#e3c98a;--fondo:#0b1f3f;--card:#10254a;--txt:#e8e4d8;--gris:#8fa1bd;--rojo:#c96161;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',Arial,sans-serif;background:var(--fondo);color:var(--txt);min-height:100vh}
+  header{background:linear-gradient(180deg,var(--navy),var(--navy2));border-bottom:2px solid var(--oro);padding:18px 16px 14px;text-align:center;position:sticky;top:0;z-index:50}
+  header h1{font-family:Georgia,serif;color:var(--oro);letter-spacing:3px;font-size:1.5em}
+  header .sub{color:var(--gris);font-size:.8em;margin-top:4px}
+  nav{display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+  nav button{background:transparent;border:1px solid var(--oro);color:var(--oro);padding:6px 14px;border-radius:18px;cursor:pointer;font-size:.85em}
+  nav button.act{background:var(--oro);color:var(--navy);font-weight:600}
+  main{max-width:1080px;margin:0 auto;padding:16px}
+  .filtros{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+  .filtros select,.filtros input{background:var(--card);border:1px solid #2c4470;color:var(--txt);padding:8px 10px;border-radius:8px;font-size:.9em;flex:1;min-width:130px}
+  #busqueda{flex:2;min-width:200px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+  .card{background:var(--card);border:1px solid #24406e;border-radius:12px;padding:14px;cursor:pointer;transition:transform .12s}
+  .card:hover{transform:translateY(-3px);border-color:var(--oro)}
+  .card h3{font-family:Georgia,serif;color:var(--oro2);font-size:1.02em;margin-bottom:6px}
+  .tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+  .tag{font-size:.68em;padding:2px 8px;border-radius:10px;background:#1b3560;color:var(--gris)}
+  .tag.niv1{background:#1d4030;color:#7fd0a5}.tag.niv2{background:#43380f;color:var(--oro2)}.tag.niv3{background:#4a1f1f;color:#e09090}
+  .card p{font-size:.82em;color:var(--gris)}
+  .detalle{position:fixed;inset:0;background:rgba(4,12,26,.92);z-index:100;display:none;overflow:auto;padding:30px 16px}
+  .detalle .caja{max-width:640px;margin:0 auto;background:var(--card);border:1px solid var(--oro);border-radius:14px;padding:24px}
+  .detalle h2{font-family:Georgia,serif;color:var(--oro);margin-bottom:4px}
+  .detalle h4{color:var(--oro2);margin:16px 0 6px;font-size:.95em}
+  .detalle ol,.detalle ul{padding-left:20px;font-size:.9em;line-height:1.6}
+  .detalle ul{list-style:none;padding-left:0}
+  .detalle ul li::before{content:"✗ ";color:var(--rojo)}
+  .detalle ol li::marker{color:var(--oro);font-weight:700}
+  .cerrar{float:right;background:var(--oro);border:none;color:var(--navy);font-weight:700;border-radius:8px;padding:6px 12px;cursor:pointer}
+  .fuente{margin-top:14px;font-size:.75em;color:var(--gris);border-top:1px solid #24406e;padding-top:10px}
+  .aviso{background:#3a2b10;border:1px solid var(--oro);color:var(--oro2);border-radius:10px;padding:12px;font-size:.8em;margin:14px 0;line-height:1.5}
+  .rutina{background:var(--card);border:1px solid #24406e;border-radius:12px;padding:16px;margin-bottom:14px}
+  .rutina h3{color:var(--oro2);font-family:Georgia,serif;margin-bottom:8px}
+  .rutina ol{padding-left:20px;font-size:.88em;line-height:1.7}
+  .timer{display:flex;flex-direction:column;align-items:center;gap:16px;margin-top:20px}
+  .reloj{font-family:Georgia,serif;font-size:4.2em;color:var(--oro);text-align:center}
+  .timer .ctl{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .timer button{background:var(--oro);color:var(--navy);border:none;font-weight:700;padding:10px 22px;border-radius:10px;cursor:pointer;font-size:1em}
+  .timer input{width:80px;background:var(--card);border:1px solid #2c4470;color:var(--txt);padding:8px;border-radius:8px;text-align:center}
+  .timer label{font-size:.8em;color:var(--gris)}
+  .fases{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+  .fase{text-align:center}
+  footer{margin-top:30px;text-align:center;color:var(--gris);font-size:.72em;padding:20px;border-top:1px solid #24406e}
+  .contador{text-align:center;color:var(--gris);font-size:.8em;margin:10px 0}
+  @media(max-width:600px){header h1{font-size:1.15em}.reloj{font-size:3em}}
+</style>
+</head>
+<body>
+<header>
+  <h1>A T L A S &nbsp; D E L &nbsp; M O V I M I E N T O</h1>
+  <div class="sub">Apicus Partners · todos los movimientos del planeta: gimnasia, fuerza, olímpicos, artes marciales (ninjutsu incluido), MMA y flexibilidad — con pasos, errores y progresiones</div>
+  <nav>
+    <button id="tab-bib" class="act" onclick="tab('bib')">Biblioteca</button>
+    <button id="tab-rut" onclick="tab('rut')">Rutinas</button>
+    <button id="tab-tim" onclick="tab('tim')">Timer</button>
+  </nav>
+</header>
+<main>
+  <div class="aviso"><b>Leé antes de moverte:</b> esta biblioteca es educación física, no prescripción médica. Calentá antes, progresá de nivel 1 a 3, y ante dolor punzante, mareos o lesiones consultá a un profesional. Las técnicas de combate son para <b>entrenamiento deportivo y defensa legítima</b> — el arte marcial empieza por no pelear. Fuentes: libros 35 (Entrenamiento), 41 (Mapa del Movimiento), 47 (Sala de Máquinas) y 54 (El Fuelle y la Malla) de la colección.</div>
+
+  <section id="sec-bib">
+    <div class="filtros">
+      <input id="busqueda" placeholder="Buscar movimiento (ej: dominada, uchi mata, low kick...)" oninput="render()">
+      <select id="fDisc" onchange="render()"><option value="">Disciplina: todas</option></select>
+      <select id="fCat" onchange="render()"><option value="">Categoría: todas</option></select>
+      <select id="fNiv" onchange="render()">
+        <option value="">Nivel: todos</option>
+        <option value="1">1 · Inicial</option>
+        <option value="2">2 · Intermedio</option>
+        <option value="3">3 · Avanzado</option>
+      </select>
+      <select id="fEq" onchange="render()"><option value="">Equipo: cualquiera</option></select>
+    </div>
+    <div class="contador" id="contador"></div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section id="sec-rut" style="display:none">
+    <div class="rutina"><h3>EL PROTOCOLO DEL SENTADO — para el que trabaja 8+ horas (libros 47 y 54)</h3><ol>
+      <li><b>La pausa de los 2 minutos (cada 50 min, en el escritorio):</b> 5 sentadillas a la silla · 5 aperturas en marco de puerta · 5 rodillas al pecho · 10 seg de cuclilla con apoyo · 5 rotaciones de cuello — todo al 30%, respirando por la nariz</li>
+      <li><b>El cierre de jornada (10 min al terminar):</b> cinco puertas del yoga (7 min) + pared RPG con respiración costal (3 min) + do-in de los cinco pulgares (4 min)</li>
+      <li><b>La semana del sentado (3+ tecnologías):</b> LUN pared · MAR FNP toalla · MIÉ ocho brocados · JUE excéntrica de silla · VIE piso somático — todo intercambiable menos la frecuencia</li>
+      <li><b>El shock de 21 días:</b> semana 1 fundar (pausa+respiración+do-in, 8 min/día) · semana 2 abrir (puertas+pared+FNP, 12 min) · semana 3 integrar (brocados+excéntrica+piso, 15 min) — test del suelo día 1 y día 21</li>
+      <li><b>Emergencia lumbar (2 min):</b> niño 60 seg + gato-camello ×8 + pared 3 min con exhala larga — si irradia u hormiguea: consulta, no protocolo</li>
+    </ol></div>
+    <div class="rutina"><h3>SEMANA COMPLETA DE FUERZA — 3 días (libro 35)</h3><ol>
+      <li><b>Lunes (empuje):</b> Sentadilla 5×5 · Press banca 5×5 · Plancha 3×45 seg · Dead bug 3×10</li>
+      <li><b>Miércoles (tracción):</b> Peso muerto 5×3 · Dominadas 4×máx · Remo invertido 3×10 · Bird dog 3×10</li>
+      <li><b>Viernes (combinado):</b> Press militar 5×5 · Sentadilla frontal 3×5 · Flexiones 3×máx · Farmer carry 4×30 m</li>
+      <li>Entre días: pausa del 50 (libro 54, cap. 2) y pared RPG 3 veces por semana</li>
+    </ol></div>
+    <div class="rutina"><h3>PROTOCOLO MÓVIL 40/20 — condicionamiento (libro 41)</h3><ol>
+      <li>8 rondas de 40 seg trabajo / 20 seg descanso (timer de esta app)</li>
+      <li>Ejercicios: burpees · mountain climbers · kettlebell swing · sentadilla con salto · flexiones · remo con banda · skaters · plancha</li>
+      <li>2-3 vueltas al circuito según nivel · 2 veces por semana máximo</li>
+    </ol></div>
+    <div class="rutina"><h3>RUTINA DE COMBATE BASE — striking (libros 35 + 47)</h3><ol>
+      <li>Saltando cuerda 3×3 min (descanso 1 min)</li>
+      <li>Sombra técnica 3×3 min: jab-cross-hook-esquive, ángulos de salida</li>
+      <li>Bolsa o pads 5×3 min: rounds con 1-2-3, low kick, teep, niveles alto-bajo</li>
+      <li>Defensas: slips y checks con partner 10 min · Core: 3×20 V-ups · Estiramiento FNP posterior al final</li>
+    </ol></div>
+    <div class="rutina"><h3>GRAPPLING BASE — BJJ/lucha/MMA (libro 35)</h3><ol>
+      <li>Calentamiento técnico: shrimping, rodantes, granjeros 10 min</li>
+      <li>Drills: pase de guardia ×10 por lado · escapes de cadera ×10 · sprawl ×20</li>
+      <li>Técnicas del día con profesor: 2 encadenamientos ×15 min</li>
+      <li>Rodamiento técnico 6×5 min (siempre con tap y cuidado) · Estiramiento global final</li>
+    </ol></div>
+    <div class="rutina"><h3>FLEXIBILIDAD — protocolo de 21 días del fuelle (libro 54)</h3><ol>
+      <li><b>Semana 1 (fundar):</b> pausa del 50 + respiración costal + do-in diarios — 8 min/día, cero dolor</li>
+      <li><b>Semana 2 (abrir cadenas):</b> las cinco puertas del yoga + pared RPG, días alternos con FNP de toalla — 12 min/día</li>
+      <li><b>Semana 3 (integrar):</b> ocho brocados + excéntrica de silla + ojos-nuca + piso diario — 15 min/día</li>
+      <li>Día 21: repetir el test del suelo y el escaneo de malla — comparar con el día 1</li>
+    </ol></div>
+    <div class="rutina"><h3>ARTES MARCIALES TRADICIONALES — práctica diaria (ninjutsu/karate/kung fu/taekwondo)</h3><ol>
+      <li>Posturas base 5 min (kamae, ma bu, zenkutsu): la raíz de todo</li>
+      <li>Kihon/técnicas básicas 10 min: golpes, patadas y bloques con máxima corrección, velocidad después</li>
+      <li>Kata o forma 10 min: primero lento y definido, luego a velocidad</li>
+      <li>Ukemi/caídas 10 min: rodantes frontales, laterales y traseras — la técnica que te mantiene entero</li>
+      <li>Siempre con sensei para armas (bo, bokken) y prácticas con partner</li>
+    </ol></div>
+    <div class="rutina"><h3>MAYORES DE 60 — autonomía y equilibrio (libros 53 + 54)</h3><ol>
+      <li>Tai chi o brocados 10 min diarios (la lentitud es la medicina)</li>
+      <li>Levantarse de la silla sin manos 3×8 · Apoyo en puntas 2×10</li>
+      <li>Test del suelo mensual con compañía · Caminata 30 min</li>
+      <li>Pared RPG 3 veces por semana — la cadena posterior es la cadena de la autonomía</li>
+    </ol></div>
+  </section>
+
+  <section id="sec-tim" style="display:none">
+    <div class="timer">
+      <div class="reloj" id="reloj">00:00</div>
+      <div id="faseActual" style="color:var(--gris)">— configure y dale ARRANCAR —</div>
+      <div class="fases">
+        <div class="fase"><label>Preparación (seg)</label><br><input id="tPrep" type="number" value="10" min="0"></div>
+        <div class="fase"><label>Trabajo (seg)</label><br><input id="tTra" type="number" value="40" min="1"></div>
+        <div class="fase"><label>Descanso (seg)</label><br><input id="tDes" type="number" value="20" min="0"></div>
+        <div class="fase"><label>Rondas</label><br><input id="tRnd" type="number" value="8" min="1"></div>
+      </div>
+      <div class="ctl">
+        <button onclick="timerStart()">ARRANCAR</button>
+        <button onclick="timerStop()" style="background:#8a6a3a;color:#fff">PARAR</button>
+      </div>
+      <div style="color:var(--gris);font-size:.8em;text-align:center">Presets de la casa: 40/20×8 (protocolo móvil del 41) · 20/10×8 (Tabata) · 180/60×5 (zonas de fuerza del 35)</div>
+    </div>
+  </section>
+</main>
+
+<div class="detalle" id="detalle" onclick="if(event.target===this)cerrarDet()">
+  <div class="caja">
+    <button class="cerrar" onclick="cerrarDet()">CERRAR</button>
+    <div id="detBody"></div>
+  </div>
+</div>
+
+<footer>Atlas del Movimiento · Apicus Partners · Editor: Christian Osvaldo Hillkirk Gane · Metafusión Aplicada · apicuspartners.com · App auxiliar de los libros 35, 41, 47 y 54 — funciona offline,(todo en un solo archivo)</footer>
+
+<script>
+const NIV={1:"Inicial",2:"Intermedio",3:"Avanzado"};
+const D=[
+
+//==DATA_A==
+{n:"Sentadilla con barra",d:"Fuerza (powerlifting)",c:"Empuje de piernas",niv:2,mus:"cuádriceps, glúteo, lumbar",eq:"barra + rack",pas:["Barra apoyada en trapecios, pies al ancho de hombros","Inhalá y desbloqueá cadera y rodillas a la vez","Bajá hasta que el pliegue de la cadera pase la rodilla","Empujá el piso y subí manteniendo el pecho arriba"],err:["Rodillas que colapsan adentro","Subir la cadera antes del pecho (buena mañana accidental)"],prog:"Sentadilla a caja → goblet → barra libre → 5×5 progresivo",fu:35},
+{n:"Peso muerto convencional",d:"Fuerza (powerlifting)",c:"Bisagra de cadera",niv:2,mus:"isquios, glúteo, erectores, antebrazo",eq:"barra",pas:["Barra sobre el medio del pie, agarrá fuera de las rodillas","Pecho arriba, espalda neutral, hombros apenas delante de la barra","Empujá el piso: barra pegada a las piernas","Cerrá de glúteo de pie, sin hiperextender"],err:["Redondear la lumbar al arrancar","Barra lejos de las piernas"],prog:"Peso muerto rumano → trap bar → convencional 5×3",fu:35},
+{n:"Press de banca",d:"Fuerza (powerlifting)",c:"Empuje",niv:2,mus:"pectoral, tríceps, hombro",eq:"barra + banco",pas:["Escápulas retraídas, arco natural, pies firmes","Bajá la barra a la línea del pezón con codos a 45°","Pausa breve sin rebotar","Empujá hacia arriba y atrás"],err:["Rebotar en el pecho","Codos a 90° abiertos (castiga el hombro)"],prog:"Presas → banca con mancuernas → barra 5×5",fu:35},
+{n:"Arranque (snatch)",d:"Halterofilia",c:"Potencia",niv:3,mus:"cadena posterior, hombros, trapecio",eq:"barra olímpica",pas:["Posición inicial amplia, agarre amplio","Primera tirada controlada hasta la rodilla","Extensión explosiva de cadera y shrug","Bajá bajo la barra con brazos bloqueados en cuclillas"],err:["Brazos que tiran antes de la cadera","Perder la barra adelante"],prog:"Snatch con palo → hang snatch → completo con carga",fu:35},
+{n:"Envión dos tiempos (clean & jerk)",d:"Halterofilia",c:"Potencia",niv:3,mus:"cuerpo entero",eq:"barra olímpica",pas:["Clean: tirada + recepción en front squat","Recuperación con codos altos","Jerk: pequeña flexión y envión con split de piernas","Recuperá juntando los pies"],err:["Codos que caen en la recepción","Split desparejo"],prog:"Clean de fuerza → push jerk → split jerk",fu:35},
+{n:"Sentadilla frontal",d:"Halterofilia / Fuerza",c:"Empuje de piernas",niv:2,mus:"cuádriceps, core",eq:"barra",pas:["Codos altos, barra en los deltoides","Bajá vertical, torso lo más erguido posible","Elbows UP es la única orden de todo el movimiento","Subí sin dejar caer el pecho"],err:["Codos que bajan (barra rueda adelante)","Talones que se levantan"],prog:"Goblet → frontal con palo → con barra",fu:35},
+{n:"Press militar de pie",d:"Fuerza",c:"Empuje",niv:2,mus:"hombro, tríceps, core",eq:"barra o mancuernas",pas:"Barra en clavícula, glúteos y abdomen apretados|Empujá vertical llevando la cabeza atrás|Brazos bloqueados, barra sobre la coronilla|Bajá controlado a la clavícula".split("|"),err:["Arquear la lumbar","Empujar adelante en diagonal"],prog:"Press sentado → militar con palo → con barra 5×5",fu:35},
+{n:"Dominadas (pull-ups)",d:"Gimnasia / Calistenia",c:"Tracción",niv:2,mus:"dorsal, bíceps, antebrazo",eq:"barra",pas:["Agarre prono apenas más ancho que hombros","Colgá con hombros activos (no muerto)","Llevá el pecho a la barra llevando codos al bolsillo","Bajada controlada hasta brazos extendidos"],err:["Balancearse (kipping sin control)","Bajada libre de caída"],prog:"Negativas → con banda → estrictas → lastradas",fu:35},
+{n:"Flexiones (push-ups)",d:"Gimnasia / Calistenia",c:"Empuje",niv:1,mus:"pectoral, tríceps, core",eq:"ninguno",pas:["Manos al ancho de hombros, cuerpo en tabla","Bajá hasta que el pecho casi toque","Codos a 45° del cuerpo","Empujá el piso manteniendo glúteos apretados"],err:["Cadera que cae (quiebre de tabla)","Cabeza que adelanta el pecho"],prog:"Inclinadas → rodillas → completas → diamante → arqueras → a una mano",fu:35},
+{n:"Plancha (front support hold)",d:"Gimnasia / Calistenia",c:"Estático de core",niv:1,mus:"core completo",eq:"colchoneta",pas:["Antebrazos al suelo, codos bajo hombros","Pelvis en retroversión leve, glúteos activos","Respirá sin perder la tabla","Acumulá tiempo con calidad"],err:["Cadera arriba (montaña)","Hombros adelante de los codos"],prog:"20 seg × 5 → 60 seg → plancha con elevaciones alternadas",fu:35},
+{n:"Burpees",d:"CrossFit / Funcional",c:"Full body",niv:2,mus:"cuerpo entero",eq:"ninguno",pas:["De pie, bajá a plancha con manos al piso","Pecho al suelo","Saltá a cuclillas con los pies afuera de las manos","Saltá vertical con palmada arriba"],err:["Plancha quebrada en el piso","Aterrizar con rodillas bloqueadas"],prog:"Sin salto → con salto → con palmada → sobre cajón",fu:41},
+{n:"Thruster",d:"CrossFit / Funcional",c:"Empuje compuesto",niv:2,mus:"piernas + hombros",eq:"barra o mancuernas",pas:["Front rack con codos altos","Sentadilla completa","Usá el impulso de las piernas para mandar el peso arriba","Bloqueá arriba y bajá al rack"],err:["Empujar solo con brazos","Perder el rack en la sentadilla"],prog:"Con mancuernas livianas → con barra → ciclos de 21-15-9",fu:41},
+{n:"Kettlebell swing ruso",d:"CrossFit / Funcional",c:"Bisagra balística",niv:2,mus:"glúteo, isquios, core",eq:"kettlebell",pas:["Pies al ancho, kettlebell a un paso","Bisagra de cadera: la pesa vuela por impulso, no por brazos","Cadera explota, kettlebell a la altura del pecho","Seguí la pesa con la misma bisagra"],err:["Sentadilla en vez de bisagra","Levantar con brazos (hombro sufre)"],prog:"Dead stop → swing ruso → swing americano (overhead) con técnica",fu:41},
+{n:"Double unders (cuerda doble)",d:"CrossFit / Funcional",c:"Cardio de salto",niv:2,mus:"gemelos, antebrazo",eq:"cuerda de velocidad",pas:["Salto bajito con puntas activas","Muñecas giran la cuerda, brazos quietos","La cuerda pasa dos veces por salto","Ritmo constante antes que velocidad"],err:["Saltar alto (gastás)","Abrir los brazos (la cuerda se acorta)"],prog:"Single unders consecutivos → dobles sueltos → series de 20-50",fu:41},
+{n:"Wall ball",d:"CrossFit / Funcional",c:"Empuje + sentadilla",niv:1,mus:"piernas, hombros",eq:"pelota medicinal + pared",pas:["Frente a la pared, pelota al pecho","Sentadilla completa","Extendé y lanzá al blanco (3 metros)","Recibí bajando directo a la próxima sentadilla"],err:["Lanzar con brazos solos","Perder el blanco (trabajo extra)"],prog:"9 kg → 10 seguidas → 50 sin parar",fu:41},
+{n:"Muscle-up en anillas/barra",d:"Gimnasia / Calistenia",c:"Tracción + empuje",niv:3,mus:"dorsal, pecho, tríceps",eq:"anillas o barra",pas:["Balanceo con piernas (kip controlado)","Pasada alta al pecho","Transición: codos cambian de abajo a arriba","Empuje a apoyo final"],err:["Transición lenta (fuerza bruta)","Anillas que se abren"],prog:"Chest to bar → muscle-up con banda → estricto",fu:35},
+{n:"Handstand (parada de manos)",d:"Gimnasia / Calistenia",c:"Equilibrio invertido",niv:3,mus:"hombros, core",eq:"pared",pas:["Pared de espaldas: caminate arriba con los pies","Empujá el piso con manos activas","Cuerpo en tabla invertida: costillas adentro","Mirada apenas adelante de las manos"],err:["Arco exagerado (banano)","Peso atrás de los dedos"],prog:"Chest-to-wall 30 seg → handstand con spot → libre",fu:35},
+{n:"Pistol squat (sentadilla a una pierna)",d:"Gimnasia / Calistenia",c:"Unilateral",niv:3,mus:"cuádriceps, glúteo, equilibrio",eq:"ninguno",pas:["Pierna extendida adelante desde arriba","Bajá sentado hacia el talón de apoyo","Torso compensa el contrapeso","Subí empujando el talón"],err:["Talón que se levanta","Perdida de equilibrio adelante"],prog:"A caja alta → con TRX → a caja baja → completo",fu:35},
+{n:"Front lever",d:"Gimnasia / Calistenia",c:"Estático de tracción",niv:3,mus:"dorsal, core",eq:"barra",pas:["Colgá con agarre prono","Llevá el cuerpo a horizontal con escápulas deprimidas","Cadera y piernas alineadas con hombros","Aguantá con brazos extendidos"],err:["Cadera caída","Encoger los brazos"],prog:"Tuck → avanzado (una pierna) → full",fu:35},
+{n:"Back lever",d:"Gimnasia / Calistenia",c:"Estático",niv:3,mus:"dorsal, pecho, core",eq:"barra",pas:["Skin the cat para pasar por detrás","Cuerpo horizontal bajo la barra","Escápulas juntas, brazos extendidos","Salí con control, sin caer"],err:["Progresar sin skin the cat dominado","Hombros sin preparar (riesgo)"],prog:"Tuck → una pierna → straddle → full",fu:35},
+{n:"Bandas de suspención: remo invertido",d:"Calistenia",c:"Tracción horizontal",niv:1,mus:"dorsal, bíceps, escápulas",eq:"barra baja o TRX",pas:["Cuerpo recto colgando bajo la barra","Remá llevando el pecho a la barra","Escápulas se juntan al final","Bajada controlada"],err:["Cadera que se rompe","Encogerse de hombros"],prog:"Inclinado → horizontal → pies elevados",fu:35},
+{n:"Copenhagen (aductores)",d:"Prehab / Funcional",c:"Estabilidad",niv:2,mus:"aductores, core oblicuo",eq:"banco o cajón",pas:["Apoyo de antebrazo, pie arriba del banco (de costado)","La pierna de abajo levanta el cuerpo en tabla lateral","Aguantá 20-30 seg o repeticiones cortas","Cambiá de lado siempre"],err:["Cadera caída","Sobrecargar al inicio (aductor se lesiona)"],prog:"Corto apoyo → completo → con elevación de pierna libre",fu:35},
+{n:"Dead bug",d:"Prehab / Core",c:"Estabilidad lumbar",niv:1,mus:"core profundo",eq:"colchoneta",pas:["Boca arriba: brazos y piernas al techo","Lumbar pegada al piso (retroversión leve)","Extendé brazo y pierna opuestos sin tocar el piso","Volvé y alterná"],err:["Lumbar que se arquea","Ir rápido sin control"],prog:"Sin peso → con banda → series de 20 lentas",fu:35},
+{n:"Bird dog",d:"Prehab / Core",c:"Estabilidad",niv:1,mus:"core, glúteo, erectores",eq:"colchoneta",pas:["Cuadrupedia neutral (espinas neutras)","Extendé brazo y pierna opuestos","Imaginá un vaso de agua en la lumbar","Volvé sin perder la neutralidad"],err:["Levantar demasiado la pierna","Rotar la cadera"],prog:"20 toques lentos → con pausa de 5 seg",fu:35},
+{n:"Farmer carry (paseo del granjero)",d:"Strongman",c:"Carga",niv:1,mus:"antebrazo, trapecio, core",eq:"mancuernas o farmer bars",pas:["Pesas a los costados, hombros atrás","Caminate alto y estable","Respirá corto y constante","20-40 metros por serie"],err:["Inclinarse a un lado","Arrastrar los pies"],prog:"Pesos livianos largos → pesados cortos → unilateral (suitcase)",fu:35},
+{n:"Yoke walk",d:"Strongman",c:"Carga",niv:3,mus:"cuerpo entero",eq:"yoke",pas:["Yoke sobre trapecios (rack alto)","Desbloqueá y dá dos pasos de prueba","Pasos cortos, torso vertical","20 metros máximos con carga pesada"],err:["Dar pasos largos","Perdida del rack a mitad de camino"],prog:"Vacio → 50% → progresivo (siempre con spotters)",fu:35},
+{n:"Atlas stones (piedra al cajón)",d:"Strongman",c:"Potencia de cadera",niv:3,mus:"cadena posterior, brazos",eq:"piedra + cajón",pas:["Abrazá la piedra: brazos en L, mentón al centro","Lap: piedra sobre los muslos","Cadera explota y subí la piedra al pecho","Extendé y apoyala arriba"],err:["Levantar con lumbar redonda","Piedra lejos del cuerpo"],prog:"Piedra chica a cajón bajo → piedra grande a cajón alto",fu:35},
+{n:"Sled push (empuje de trineo)",d:"Strongman / Funcional",c:"Empuje",niv:2,mus:"piernas, core",eq:"trineo",pas:["Manos altas en el trineo, cuerpo en diagonal","Pasos cortos y potentes empujando el piso","Torso bajo = más pierna","20-30 metros por serie"],err:["Pararse erguido (pierden las piernas)","Pasos largos"],prog:"Peso liviano rápido → pesado lento",fu:35},
+{n:"Rucking (marcha con peso)",d:"Entrenamiento táctico",c:"Resistencia",niv:1,mus:"piernas, core, trapecio",eq:"mochila con peso",pas:["10-20% del peso corporal en la mochila","Marcha a paso vivo 30-60 min","Hombros atrás, respiración nasal","Progresá distancia antes que peso"],err:["Peso arriba del 25% (castiga la espalda)","Correr con peso sin adaptación"],prog:"5 km con 10 kg → 10 km con 15 kg → terreno variado",fu:35},
+//==DATA_B==
+{n:"Salida de tacos (sprint 100m)",d:"Atletismo",c:"Aceleración",niv:3,mus:"piernas, glúteos, core",eq:"tacos de salida",pas:["Bloques: pedal delantero a dos pies de la línea","Manos ANTES de la línea, hombros adelante","Al disparo: empujá ambos pedales","Primeros pasos bajos y potentes, erguí gradual"],err:["Erguirse en el primer paso","Zancada larga al inicio (frena)"],prog:"Salida de parado → de tres puntos → con tacos",fu:35},
+{n:"Sprint 30-60 metros",d:"Atletismo",c:"Velocidad",niv:2,mus:"isquios, glúteos, gemelos",eq:"ninguno",pas:"Calentamiento completo de sprint antes|Aceleración progresiva los primeros 10 m|Máxima frecuencia con zancada completa|Desacelerá gradual, jamás de golpe".split("|"),err:["Sprintear en frío (isquios en riesgo)","Tensión en hombros y cara"],prog:"6×30 m → 4×60 m → con resistencia elástica",fu:35},
+{n:"Técnica de vallas",d:"Atletismo",c:"Velocidad técnica",niv:3,mus:"isquios, flexores de cadera",eq:"vallas bajas",pas:["Ataque de rodilla adelante sobre la valla","Pierna guía lateral y plana","Tres pasos entre vallas (ritmo)","Bajada activa al piso"],err:["Saltar la valla (perdés velocidad)","Torso que se cae adelante"],prog:"Vallas al mínimo + 3 pasos → altura oficial",fu:35},
+{n:"Salto en alto Fosbury",d:"Atletismo",c:"Salto",niv:3,mus:"piernas, core",eq:"colchonetas + barra",pas:["Curva de aproximación (3-5 pasos)","Penúltimo paso largo: bajás el centro de masa","Despegue vertical con brazo y rodilla libres","Arqueá sobre la barra y sacá la cadera"],err:["Saltar de frente (pierdés altura)","Esperar en el aire"],prog:"Saltos verticales → con línea pintada → con barra baja",fu:35},
+{n:"Salto en largo",d:"Atletismo",c:"Salto",niv:2,mus:"piernas completo",eq:"pista + foso",pas:["Aproximación controlada (12-18 pasos)","Último paso más corto y plano","Despegue con bloqueo de rodilla libre","Extensión de piernas al foso (talonazo)"],err:["Bajar el centro de masa en el último paso","Paso largo de despegue (frena)"],prog:"Saltos desde parado → con 3 pasos → con carrera completa",fu:35},
+{n:"Garrocha (pértiga)",d:"Atletismo",c:"Salto técnico",niv:3,mus:"cuerpo entero, hombros",eq:"pértiga + foso",pas:["Corré con la garrocha en vertical","Clavá en el cajón sin perder velocidad","Balanceo colgado con piernas atrás","Extensión vertical y giro sobre la barra"],err:["Clavar tarde","Tirar de brazos antes de tiempo"],prog:"Solo con entrenador y colchonetas reglamentarias",fu:35},
+{n:"Lanzamiento de bala",d:"Atletismo",c:"Lanzamiento",niv:2,mus:"piernas, pecho, tríceps",eq:"bala",pas:["Bala en la base de los dedos, cuello","Glide o rotación cruzando el círculo","Cadera adelante, brazo atrás","Empuje final con muñeca al final"],err:["Lanzar solo con brazo","Salirse del círculo"],prog:"De parado → glide → rotacional",fu:35},
+{n:"Lanzamiento de disco",d:"Atletismo",c:"Lanzamiento",niv:3,mus:"rotadores, piernas",eq:"disco",pas:["Disco plano en la mano","Rotación de 1 vuelta y media","El disco queda atrás del cuerpo","Latigazo de cadera y soltá plano"],err:["Disco con borde (vuela mal)","Rotar sin bajada de centro"],prog:"Lanzamientos de parado → medio giro → rotación completa",fu:35},
+{n:"Marcha atlética 10km",d:"Atletismo",c:"Resistencia técnica",niv:2,mus:"piernas, cadera",eq:"ninguno",pas:["Siempre un pie en contacto con el suelo","Pierna de apoyo recta en el contacto","Rodilla libre alta y avance de cadera","Brazos a 90° con ritmo alto"],err:["Correr (fase de vuelo = descalificación)","Zancada corta sin cadera"],prog:"Técnica 20 min → 5 km → 10 km con juez",fu:35},
+{n:"Medio fondo: ritmo umbral 5K",d:"Atletismo",c:"Resistencia",niv:2,mus:"piernas, corazón",eq:"pista o calle",pas:["20-30 min a ritmo conversacional duro","Respiración rítmica 2-2","Zancada rápida y corta bajo el cuerpo","Terminá con 4 rectas a paso vivo"],err:["Ir a fondo el primer km","Zancada larga y salto (costo extra)"],prog:"3×1 km a ritmo → 5K continuo → progresivo negativo",fu:41},
+{n:"Flic flac (back handspring)",d:"Gimnasia artística",c:"Acrobacia",niv:3,mus:"piernas, dorsales, hombros",eq:"colchonetas",pas:["Sentate atrás imaginario y volá atrás","Manos al piso, arco de hombros y espalda","Latigazo de piernas sobre las manos","Aterrizá de pie con brazos arriba"],err:["Saltar hacia atrás sin sentarse","Brazos no bloqueados (cabeza en riesgo)"],prog:"Puente → puente con impulso → con trainer SIEMPRE",fu:35},
+{n:"Rueda lateral",d:"Gimnasia artística",c:"Acrobacia",niv:1,mus:"hombros, core",eq:"colchoneta",pas:["Manos al piso una tras otra","Pasá el cuerpo en plano vertical","Piernas abiertas en línea","Aterrizá paso a paso mirando el origen"],err:["Torso que se rompe del plano","Manos sin bloquear"],prog:"En línea pintada → con legs juntas → aereal (sin manos)",fu:35},
+{n:"Mortal adelante agrupado",d:"Gimnasia artística",c:"Acrobacia",niv:3,mus:"cuerpo entero",eq:"colchonetas + foso si es posible",pas:["Salto vertical con brazos arriba","Agrupá: rodillas al pecho, manos a espinillas","Girá con el impulso de la agrupación","Abrí a tiempo para caer de pie"],err:["Tirarse adelante en vez de saltar arriba","Abrirse tarde"],prog:"Solo en gimnasio con profesor: trampolín → fono de espuma → colchoneta",fu:35},
+{n:"Anillas: apoyo (support hold)",d:"Gimnasia artística",c:"Fuerza estática",niv:3,mus:"hombros, pecho, core",eq:"anillas",pas:["Salto a apoyo con brazos bloqueados","Escápulas deprimidas y algo rotadas","Anillas FUERA del cuerpo, apretadas","Turn out (palmas adelante) para cerrar"],err:["Codos flexionados","Anillas pegadas al cuerpo"],prog:"En bandas → support con spot → 10 seg limpios",fu:35},
+{n:"Barra fija: kip (subida de cadera)",d:"Gimnasia artística",c:"Balanceo",niv:3,mus:"core, dorsal",eq:"barra fija",pas:["Balanceo desde colgado","Cierre de cadera al pasar vertical abajo","Pies a la barra con piernas extendidas","Extensión a apoyo hacia atrás"],err:["Tirar con brazos en el cierre","Balanceo descontrolado"],prog:"Toes to bar → kip con ayuda → serie de kips",fu:35},
+{n:"Equilibrio de_beam: caminatas y vueltas",d:"Gimnasia artística",c:"Equilibrio",niv:2,mus:"piernas, core",eq:"viga baja",pas:["Caminata relevé (en puntas) con brazos en V","Pies delante de pies: línea estricta","Media vuelta con foco fijo","Piernas siempre activas y estiradas"],err:["Mirar los pies","Rodillas blandas"],prog:"Línea en el piso → viga baja → media altura",fu:35},
+{n:"Crol (freestyle)",d:"Natación",c:"Estilo",niv:1,mus:"dorsal, hombros, core",eq:"pileta + antiparras",pas:["Cuerpo horizontal, cabeza alineada","Brazada: entrada adelante, agarre, empuje hasta el muslo","Rotación de hombros con cada brazada","Pateo corto de cadera, 2 o 6 tiempos"],err:["Cabeza alta (piernas se hunden)","Cruzar la mano delante de la cabeza"],prog:"Pateo con tabla → un brazo → nado completo con respiración bilateral",fu:41},
+{n:"Espalda (backstroke)",d:"Natación",c:"Estilo",niv:1,mus:"dorsal, hombros",eq:"pileta",pas:["Panza arriba, orejas en el agua","Brazada con meñique entrando primero","Cadera que rota con cada brazo","Pateo corto y constante de superficie"],err:["Sentarse en el agua","Cabeza que mira a los pies (cadera se hunde)"],prog:"Pateo de espalda → un brazo → completo contando passing flags",fu:41},
+{n:"Pecho (breaststroke)",d:"Natación",c:"Estilo",niv:1,mus:"piernas aductores, pecho",eq:"pileta",pas:["Brazada en corazón hacia afuera-adentro","Recuperación adelante estirada","Patada de rana: talones a glúteo, barrido afuera","Deslizá extendido en cada ciclo"],err:["Patada de tijera (mezcla crol)","Cabeza que no sale a respirar"],prog:"Patada con tabla → brazos → coordinación lenta",fu:41},
+{n:"Mariposa (butterfly)",d:"Natación",c:"Estilo",niv:3,mus:"core, hombros, dorsal",eq:"pileta",pas:["Onda del cuerpo desde el pecho","Brazadas simultáneas por fuera del agua","Segunda patada fuerte al salir","Respiración adelante sin romper la ola"],err:["Dos brazadas desparejas","Patada solo de piernas (sin ola de core)"],prog:"Dolphin kick → un brazo → 25 m completos",fu:41},
+{n:"Viraje de crol (flip turn)",d:"Natación",c:"Técnica",niv:2,mus:"core, piernas",eq:"pileta",pas:["Última brazada al acercarte a la pared","Voltereta frontal agrupada","Apoyá pies en la pared lateral","Empujá en posición de flecha y salí a nadar"],err:["Virar lejos de la pared","Empujar sin flecha (pierde distancia)"],prog:"Volteretas al medio de la pileta → con pared → a velocidad",fu:41},
+{n:"Remo ergómetro (concept2)",d:"Remo",c:"Cardio de fuerza",niv:2,mus:"piernas, dorsal, core",eq:"ergómetro",pas:["Secuencia: piernas-tronco-brazos al tirar","Tronco 45° al terminar el impulso","Vuelta: brazos-tronco-piernas","Drive con piernas, no con brazos"],err:["Abrir el tronco antes de las piernas","Remo de brazos (espalda sufre)"],prog:"5×500 m → 2000 m test → 30 min ritmo constante",fu:41},
+{n:"Pédaleo con cadencia",d:"Ciclismo",c:"Técnica",niv:1,mus:"cuádriceps, glúteos, gemelos",eq:"bici + rodillo",pas:["Cadencia 80-95 rpm base","Círculo completo: no solo empujar","Rodillas sin abrirse","Cadencia alta liviana vs baja pesada: alterná"],err:["Marcha dura con cadencia 50 (rodilla)","Pedaleo solo de empuje"],prog:"20 min a 90 rpm → intervalos 100+ rpm → salidas de ruta",fu:41},
+{n:"Roll (rodante parkour)",d:"Parkour / Movimiento natural",c:"Caída segura",niv:1,mus:"core, dorsal",eq:"colchoneta o pasto",pas:["Manos al piso al llegar abajo","Rodilla diagonal por el suelo (no la columna)","Rolá sobre el hombro contrario a la mano de apoyo","Salí de pie con impulso"],err:["Rodar sobre la columna","Mano que no guía"],prog:"Sentado → agachado → desde parado → desde altura baja",fu:35},
+{n:"Precision jump (salto de precisión)",d:"Parkour",c:"Salto",niv:2,mus:"piernas, equilibrio",eq:"líneas/bordes bajos",pas:["Apuntá al punto exacto de aterrizaje","Salto con brazos integrados","Aterrizá con la punta, absorbiendo al medio pie","Clavá la vista en el punto antes de saltar"],err:["Aterrizar con talón en bordes","Salto sin medición previa"],prog:"Líneas pintadas → bordes de 30 cm → progresión lenta SIEMPRE",fu:35},
+{n:"Vault de seguridad (step vault)",d:"Parkour",c:"Pasada de obstáculo",niv:1,mus:"piernas, brazos",eq:"obstáculo bajo",pas:["Mano y pie exterior sobre el obstáculo","Pierna interior pasa por abajo","Ojo en el aterrizaje antes de pasar","Bajá al otro lado sin salto extra"],err:["Pasadas a obstáculos con riesgo del otro lado","Mano floja"],prog:"Obstáculo de 50 cm → 80 cm → kong vault (doble apoyo)",fu:35},
+{n:"Wall run + climb-up",d:"Parkour",c:"Escalada",niv:3,mus:"piernas, dorsal, tríceps",eq:"pared segura",pas:["Corré al muro con impulso","Pie al muro alto, segundo paso para ganar altura","Manos al borde, péndulo de pie","Muscle-up de pared (doble cambio de manos)"],err:["Correr al muro sin plan de agarre","Tirar solo de brazos"],prog:"Correr al muro y volver → tocar bordes bajos → climb-up completo",fu:35},
+//==DATA_C==
+{n:"Guardia básica de boxeo",d:"Boxeo",c:"Fundamento",niv:1,mus:"hombros, core",eq:"ninguno (guantes si hay contacto)",pas:["Pies diagonales, peso 50-50 en puntas","Manos a la altura de los pómulos","Hombros relajados, mentón detrás del hombro","Movete con pasos cortos, nunca cruzados"],err:["Pies en línea (equilibrio perdido)","Manos que bajan al moverse"],prog:"Sombra 3 asaltos → guardia en movimiento → con sparring técnico",fu:35},
+{n:"Jab",d:"Boxeo",c:"Golpe recto",niv:1,mus:"hombro, tríceps, core",eq:"ninguno",pas:["Extendé la mano delantera directo a la cara","Hombro protege el mentón al impactar","Rotación del puño al final (vertical a horizontal)","Volvé por el MISMO camino más rápido"],err:["Telegrafiar (cargar el brazo atrás)","Bajar la mano al volver"],prog:"Jab solo 200 → jab+paso → jab al foco con timing",fu:35},
+{n:"Cross (directo)",d:"Boxeo",c:"Golpe recto",niv:1,mus:"glúteo, core, hombro trasero",eq:"ninguno",pas:["Rotá el pie trasero (talon adentro)","Cadera y hombro viajan juntos","Puño trasero directo, mano delantera vuelve a guardia","Cara siempre detrás del hombro"],err:["Brazo sin cadera (sin potencia)","Cabeza que se destapa"],prog:"Cross a la bolsa lenta → combinado jab-cross → al foco",fu:35},
+{n:"Hook (gancho)",d:"Boxeo",c:"Golpe curvo",niv:2,mus:"core rotador, hombro",eq:"ninguno",pas:["Pivote del pie del mismo lado","Brazo a 90° viaja horizontal","Puño vertical u horizontal según escuela","Volvé a guardia con codo alto"],err:["Brazo estirado (es un swing, no hook)","Pies que no rotan"],prog:"Hook al aire con pivote → a la bolsa → combos 1-2-3",fu:35},
+{n:"Uppercut",d:"Boxeo",c:"Golpe ascendente",niv:2,mus:"piernas, core, hombro",eq:"ninguno",pas:["Bajada breve de piernas","Puño sube vertical con codo pegado","La pierna empuja el golpe","Mano contraria en guardia"],err:["Bajar solo el brazo (brazo de palo)","Abrir el codo hacia afuera"],prog:"Uppercuts a bolsa → al cuerpo → contra jab del rival",fu:35},
+{n:"Esquive (slip) y rolido",d:"Boxeo",c:"Defensa",niv:2,mus:"core, piernas",eq:"ninguno",pas:["Slip: rotación de cintura sacando la cabeza de la línea","Pierna del lado al que te movés carga el peso","Rolido: bajás en U bajo el golpe y salís al otro lado","Ojos SIEMPRE al rival"],err:["Esquivar con el torso recto (cuello sufre)","Cerrar los ojos"],prog:"Slip al cordel → con partner lanzando suave → combos tras esquive",fu:35},
+{n:"1-2-3 y salida en ángulo",d:"Boxeo",c:"Combinación",niv:2,mus:"cuerpo entero",eq:"ninguno",pas:["Jab al centro para cerrar la línea","Cross detrás del jab","Hook al cuerpo o cabeza","Salida en ángulo de 45°, nunca recto atrás"],err:["Quedar parado después de tirar","Salir a la línea del cross rival"],prog:"Sombra → bolsa → sparring light con permiso del coach",fu:35},
+{n:"Teep (patada frontal muay thai)",d:"Muay Thai",c:"Patada",niv:1,mus:"flexores de cadera, cuádriceps",eq:"ninguno",pas:["Rodilla sube primero al pecho","Extensión de pierna con cadera adelante","Pie vuelve a la posición de guardia","Usalo para empujar y medir distancia"],err:["Patear sin subir rodilla (lento y robable)","Cadera que se queda atrás"],prog:"Teep al aire → a la bolsa → con timing contra avance",fu:35},
+{n:"Low kick (patada baja)",d:"Muay Thai / MMA",c:"Patada",niv:2,mus:"glúteo, core, cuádriceps externo",eq:"ninguno (espinillera si hay contacto)",pas:["Paso diagonal corto con el pie de apoyo","Pierna golpea en diagonal a 45°","Espinilla impacta el muslo externo rival","Bajá la mano del mismo lado para cubrir"],err:["Patear horizontal puro (tibia contra rodilla)","Sin rotación de cadera"],prog:"Low kick a bolsa blanda → con pauteo → check y responde",fu:35},
+{n:"Rodillazo en clinch",d:"Muay Thai",c:"Golpe de rodilla",niv:2,mus:"core, flexores",eq:"ninguno",pas:["Controlá la nuca rival con ambas manos","Tirá el pecho arriba y estira el clinch","Rodilla sube vertical al cuerpo/cara","Alterná lados manteniendo el control"],err:["Rodilla sin extensión de cadera","Perder el clinch y quedar en medio"],prog:"Rodillazos a bolsa → clinch con partner → clinch con reacción",fu:35},
+{n:"Codo horizontal (sok)",d:"Muay Thai",c:"Golpe de codo",niv:3,mus:"core rotador, hombro",eq:"ninguno (SIN contacto en práctica)",pas:["Mano del lado cruza a agarrar la nuca","Codo viaja horizontal a 45°","Cadera rota con el golpe","Volvé inmediato a guardia"],err:["Codo sin rotación (pierde potencia)","Descubrirse delante del rival"],prog:"Solo al aire/bolsa blanda: es arma de corto alcance letal en deporte",fu:35},
+{n:"Check de patada (defensa)",d:"Muay Thai / MMA",c:"Defensa",niv:2,mus:"aductores, equilibrio",eq:"ninguno",pas:["Levantá la rodilla del lado que llega el kick","Pie de la pierna alzada apunta algo afuera","Aguantá con la tibia/rodilla el impacto","Contragolpe apenas toca el piso"],err:["Check bajo (patada pasa a la pierna apoyada)","Salir del equilibrio"],prog:"Check con pauteo suave → con patadas reales al 50%",fu:35},
+{n:"Clínch de cuello y control",d:"Muay Thai / MMA",c:"Control",niv:2,mus:"antebrazo, dorsal, core",eq:"partner",pas:["Manos al cráneo rival (no al cuello)","Codos adentro controlando la postura","Empujá y desequilibrá (no solo abrazar)","Rodillazo cuando el rival cede"],err:["Agarrar el cuello con brazos rectos","Cabeza abajo del rival (rodilla arriba)"],prog:"Pummel drills → clinch con rodillas suaves → clinch libre",fu:35},
+{n:"Doble pierna (double leg takedown)",d:"MMA / Lucha",c:"Derribe",niv:2,mus:"piernas, dorsal",eq:"partner / maniquí",pas:["Cambio de nivel con paso de penetración","Cabeza al costado externo, brazos detrás de rodillas","Hombro al estómago empujando","Cerrá las piernas y llevá al piso"],err:["Cambiar de nivel sin paso (te leen)","Cabeza del lado interno (guillotina)"],prog:"Doble a maniquí → con partner a 50% → con set-up de golpes",fu:35},
+{n:"Single leg (pierna simple)",d:"MMA / Lucha",c:"Derribe",niv:2,mus:"piernas, agarre",eq:"partner",pas:["Agarrá la pierna bajo el brazo","Pechito pegado al muslo del rival","Elevá o girá la pierna hacia su backstep","Terminá arriba buscando el pase"],err:["Agarrar sin pegar el pecho (te suelta)","Cabeza dentro del cuerpo (guillotena)"],prog:"Single a maniquí → finish simple → con encadenamientos",fu:35},
+{n:"Sprawl (defensa de derribe)",d:"MMA",c:"Defensa",niv:2,mus:"core, pecho, piernas",eq:"ninguno",pas:["Al ver el derribe: piernas hacia atrás","Pecho sobre la espalda del rival","Manos al suelo o underhook","Girá la cabeza libre y separá o tomá la espalda"],err:["Saltar en vez de sprawl","Poner las manos abajo sin cadera"],prog:"Sprawl al pito → con partner lanzando → sprawl + guillotina",fu:35},
+{n:"Guillotina",d:"MMA / BJJ",c:"Sumisión",niv:2,mus:"antebrazo, core",eq:"partner (SIN final en práctica)",pas:["Brazo bajo el cuello, muñeca al pecho","Cerrá el frente del cuello con antebrazo","Segunda mano agarra la propia muñeca","Cadera abajo y extendé (high guard si es no-gi)"],err:["Sin control de cadera (escapan parándose)","Agarre bajo del cuello"],prog:"Solo en gimnasio con profesor y taps: guillotina frontal → cerrada",fu:35},
+{n:"Mata león (rear naked choke)",d:"MMA / BJJ",c:"Sumisión",niv:2,mus:"brazos, core",eq:"partner (SIN final en práctica)",pas:["Espalda tomada: ganchos de pierna adentro","Brazo bajo el mentón, antebrazo al frente del cuello","Mano detrás de la cabeza del rival (no de tu mano)","Aprieta codos y expandí el pecho"],err:["Agarrarse la propia mano (escape fácil)","Sin ganchos (rueda y escapa)"],prog:"En práctica: aplicar 30% y esperar el tap SIEMPRE",fu:35},
+{n:"Armbar (luxación de codo)",d:"BJJ / MMA",c:"Sumisión",niv:2,mus:"cadera, piernas",eq:"partner (SIN final en práctica)",pas:["Desde montada o guardia: pierna sobre la cabeza","Aislar el brazo contra tu pecho","Cadera ALTA pegada al hombro rival","Rodillas juntas, arqueá la cadera"],err:["Cadera lejos (sin palanca)","Cruces del tobillo"],prog:"En gimnasio: entradas al 30%, tap inmediato",fu:35},
+{n:"Triángulo (triangle choke)",d:"BJJ / MMA",c:"Sumisión",niv:3,mus:"aductores, core",eq:"partner (SIN final en práctica)",pas:["Un brazo dentro, uno afuera de tus piernas","Pierna sobre el hombro, tobillo bajo la rodilla","Cerrá el triángulo cortando el cuello","Girá el ángulo y abrí las rodillas"],err:["Cierre bajo (en el hombro)","No cortar el ángulo"],prog:"Drill de cierre → con partner cooperativo → en rodamiento",fu:35},
+{n:"Kimura (luxación de hombro)",d:"BJJ / MMA",c:"Sumisión",niv:2,mus:"antebrazo, core",eq:"partner (SIN final en práctica)",pas:["Agarrá la muñeca del brazo rival","Pasa el antebrazo por encima del suyo","Doble agarre de tu muñeca (figure-4)","Girá el hombro hacia su nuca"],err:["Sin control del cuerpo (gira y escapa)","Fuerza de brazos en vez de palanca"],prog:"Kimura desde guardia → lateral → de pie con class",fu:35},
+{n:"Pase de guardia (over-under)",d:"BJJ",c:"Progresión de posición",niv:2,mus:"core, piernas",eq:"partner",pas:["Uno arriba: brazo sobre pierna, otro debajo","Pecho a pecho, cabeza del lado del underhook","Piernas en esgrima: circulá el pie","Cuidado la rodilla, llegá al lateral"],err:["Pase parado (te barran)","Cuello adelantado (triángulo)"],prog:"Pase a partner pasivo → con resistencia al 50% → libre",fu:35},
+{n:"Montada: estabilización",d:"BJJ / MMA",c:"Posición",niv:2,mus:"aductores, core",eq:"partner",pas:["Rodillas bien altas bajo las axilas","Peso abajo: pegá el pecho","Anticipá el puente con las manos listas","Subí a monta alta para atacar"],err:["Monta baja (te expulsan de puente)","Manos al piso (te la juegan)"],prog:"Monta 30 seg → con escapes al 50% → con ataques",fu:35},
+{n:"Ukemi (caída hacia atrás)",d:"Judo",c:"Caída segura",niv:1,mus:"core, dorsal",eq:"colchoneta",pas:["Sentarse enrollándose atrás","Bofetá el suelo con ambos brazos a 45°","Mentón al pecho (nuca NUNCA al piso)","La caída es redonda, no plana"],err:["Caer plano (golpea la espalda)","Cabeza atrás (nuca en riesgo)"],prog:"Sentado → agachado → de parado → con salto",fu:35},
+{n:"O-goshi (proyección de cadera)",d:"Judo",c:"Proyección",niv:2,mus:"piernas, core",eq:"partner + colchoneta",pas:["Tirá del rival hacia vos (kuzushi)","Pisá adentro, cadera bajo la suya","Brazo por la espalda a la cintura","Girá y barré con la cadera"],err:["Cadera alta (no pasa nada)","Brazo que no envuelve"],prog:"Uchi-komi (entradas) → nage-komi con caída → randori",fu:35},
+{n:"Seoi-nage (cargada de hombro)",d:"Judo",c:"Proyección",niv:2,mus:"piernas, dorsal",eq:"judogi + colchoneta",pas:["Kuzushi adelante del rival","Pisá girando, espalda al pecho del rival","Brazo bajo el suyo (axila a hombro)","Cargá y girá sobre la punta de los pies"],err:["Rodillas al piso (variante ilegal en algunos contextos)","Sin giro completo"],prog:"Uchi-komi 50 → con caída suave → randori técnico",fu:35},
+{n:"Uchi-mata (muslo interior)",d:"Judo",c:"Proyección",niv:3,mus:"piernas, core",eq:"judogi + colchoneta",pas:["Desequilibrio adelante-derecha del rival","Pierna de ataque entre las suyas","Muslo contra muslo interno, barré hacia arriba","Control del agarre todo el giro"],err:["Sin kuzushi (el rival se escapa)","Rodilla de apoyo blanda"],prog:"Solo con profesor: uchi-komi con banda → con caída",fu:35},
+{n:"Osae-komi: kesa-gatame (inmovilización)",d:"Judo",c:"Control de suelo",niv:1,mus:"core, pecho",eq:"colchoneta",pas:["Sentado al costado del rival","Brazo bajo su cuello, agarre del judogi","Otra mano entre las piernas al cinturón","Pecho abajo, piernas abiertas en base"],err:["Peso atrás (se sientan y salen)","Base cerrada (te dan vuelta)"],prog:"Inmovilizá 20 seg → con escapes al 50% → randori de suelo",fu:35},
+{n:"Dollyo chagi (patada circular)",d:"Taekwondo",c:"Patada",niv:1,mus:"core rotador, cuádriceps",eq:"ninguno",pas:["Rodilla sube apuntando al objetivo","Girá la cadera: la pierna viaja en arco","Empeine o planta impacta","Volvé por el mismo camino a guardia"],err:["Patada sin rodilla previa (lenta)","Cadera que no rota (patada recta débil)"],prog:"Al aire con cámara lenta → al pad → con steps de combate",fu:35},
+{n:"Yop chagi (patada lateral)",d:"Taekwondo",c:"Patada",niv:2,mus:"glúteo, aductores",eq:"ninguno",pas:["Cámara: rodilla al pecho con pie de apoyo girado","Extensión lateral con cuchilla del pie","Cadera metida, cuerpo en línea","Recuperá la cámara antes de bajar"],err:["Extender sin cámara (robable)","Cadera fuera (sin potencia)"],prog:"Con apoyo de pared → al pad → con avance cruzado",fu:35},
+{n:"Dwi chagi (patada hacia atrás)",d:"Taekwondo",c:"Patada",niv:3,mus:"glúteo, isquios, core",eq:"ninguno",pas:["Girá la cabeza primero: mirá el objetivo","Pierna cargada al pecho","Extensión hacia atrás con talón","Bajá girando a guardia"],err:["Patear sin mirar (perdés el objetivo)","Cámara visible (te la leen)"],prog:"Con barra de apoyo → al pad con partner → con timing",fu:35},
+{n:"Tornado kick (540)",d:"Taekwondo / Wushu",c:"Patada acrobática",niv:3,mus:"piernas, core, equilibrio",eq:"espacio + colchoneta",pas:["Paso giro con pierna de péndulo","Giro completo de 360 sobre el pie de apoyo","Patada circular en el aire","Aterrizá en guardia mirando el origen"],err:["Girar sin mirada fija (mareo)","Patada sin giro (menos potencia)"],prog:"Giro seco → con patada al aire → al pad elevado",fu:35},
+{n:"Gyaku-zuki (puño inverso)",d:"Karate",c:"Golpe",niv:1,mus:"core rotador, tríceps",eq:"ninguno",pas:["Desde kiba-dachi o zenkutsu","Puño trasero con rotación total de cadera","La cadera llega ANTES que el puño","Kime: contracción total al impacto"],err:["Brazo sin cadera (golpe de brazo)","Extensión incompleta"],prog:"Kihon lento → a velocidad → makiwara/pad",fu:35},
+{n:"Mawashi-geri (patada circular karate)",d:"Karate",c:"Patada",niv:2,mus:"core, cuádriceps",eq:"ninguno",pas:["Rodilla alta lateral","Rotación de cadera y pie de apoyo 180°","Extensión con empeine al objetivo","Recuperación de cámara rápida"],err:["Sin rotación del pie de apoyo","Bajar la pierna sin cámara"],prog:"Con partner al pad → con steps → bunkai aplicado",fu:35},
+{n:"Kata: Heian Shodan",d:"Karate",c:"Forma",niv:1,mus:"cuerpo entero",eq:"karate-gi",pas:["Secuencia fija de 21 movimientos","Cada técnica con kime y respiración","Las direcciones son parte del kata","Tiempo y tensión: el kata es combate imaginario"],err:["Hacerlo gimnástico (sin intención)","Direcciones borradas"],prog:"Contando → con sensei → en examen/torneo",fu:35},
+//==DATA_D==
+{n:"Ma Bu (postura del jinete)",d:"Kung Fu / Wushu",c:"Postura base",niv:1,mus:"cuádriceps, glúteo",eq:"ninguno",pas:["Pies al doble del ancho de hombros","Rodillas afuera alineadas con las puntas","Columna vertical, cola metida","Tiempo: la postura se cultiva en segundos-minutos"],err:["Rodillas que entran","Inclinarse adelante"],prog:"30 seg → 2 min → con brazos y formas encima",fu:35},
+{n:"Chang Quan: puño largo",d:"Wushu",c:"Forma",niv:2,mus:"cuerpo entero",eq:"espacio",pas:["Encadenamientos largos y explosivos","Cada movimiento termina nítido (como foto)","Alterná niveles: parado, bajo, salto","La mirada precede a la mano"],err:["Forma continua sin definición","Salto sin recepción baja"],prog:"Secciones de 4 movimientos → forma completa → con velocidad",fu:35},
+{n:"Pak Sau (manco slap de wing chun)",d:"Wing Chun",c:"Técnica de mano",niv:1,mus:"antebrazo, core",eq:"ninguno",pas:["Mano slapea hacia adentro-abajo","Codo queda al centro SIEMPRE","Muñeca relajada, dedos al frente","Pak y golpe con la otra mano"],err:["Pak con brazo extendido (pierdes el centro)","Hombro que sube"],prog:"Pak al aire → chi sau con partner → aplikado con látigo",fu:35},
+{n:"Bong Sau (brazo ala)",d:"Wing Chun",c:"Defensa",niv:2,mus:"hombro, antebrazo",eq:"ninguno",pas:["Antebrazo rota hacia arriba en diagonal","Codo a 45° alto pero relajado","Estructura: la fuerza se va a tierra por el codo","Tan sau inmediato para volver al centro"],err:["Hombro tensionado (estructura muerta)","Bong plano (sin ángulo)"],prog:"Bong estático → con presión del partner → en chi sau",fu:35},
+{n:"Chi Sau (manos pegajosas)",d:"Wing Chun",c:"Sensibilidad",niv:2,mus:"antebrazos, piernas",eq:"partner",pas:["Contacto de antebrazos con el partner","Rollos circulares manteniendo presión","Sentí el hueco: cuando cede, golpeá","Adelante SIEMPRE: el centro es la ley"],err:["Fuerza contra fuerza","Perder el contacto"],prog:"Dan chi sau (una mano) → dos manos → con golpes suaves",fu:35},
+{n:"Ikyo (primer control)",d:"Aikido",c:"Control articular",niv:2,mus:"brazos, core",eq:"partner + tatami",pas:["Irimi: entrá al lado del ataque","Extendé el brazo del uke hacia su candado","Control del codo con tu mano libre","Guiá al suelo en espiral, sin torsión brusca"],err:["Girar el brazo en vez de extenderlo","Fuerza de brazos sin entrada de cadera"],prog:"Suwari waza (arrodillado) → de pie → randori suave",fu:35},
+{n:"Irimi-nage (proyección de entrada)",d:"Aikido",c:"Proyección",niv:2,mus:"piernas, core",eq:"partner + tatami",pas:["Entrá profundamente detrás del uke","Una mano a la nuca, otra al hombro","Pisá atrás llevándolo en círculo","La caída baja por su eje, no por el cuello"],err:["Tirar del cuello (peligroso)","Entrada corta (chocás con el ataque)"],prog:"Con uke cooperativo → con ukemi suave → randori lento",fu:35},
+{n:"Tai no henko (cambio de cuerpo)",d:"Aikido",c:"Evasión",niv:1,mus:"piernas, core",eq:"ninguno",pas:["El agarre llega: no lo bloqueés","Pisá 45° hacia atrás-afuera","Cadera y cuerpo giran como una pieza","Manos unidas al centro manteniendo la extensión"],err:["Girar solo los brazos","Paso largo (perdés la estructura)"],prog:"Solo → con agarre de muñeca → con agarre cruzado",fu:35},
+{n:"Suburi men (golpe a la cabeza)",d:"Kendo",c:"Ataque",niv:1,mus:"hombros, antebrazo, core",eq:"shinai (bambú)",pas:["Shinai arriba vertical desde el centro","Levantá con codos, no con fuerza de brazos","Corta hacia adelante con paso derecho","Ki-ken-tai: grito, corte y pie al unísono"],err:["Brazos que golpean (debe cortar)","Pie que llega tarde"],prog:"Suburi 100 → con partner en bōgu → kakari-geiko",fu:35},
+{n:"Suri-ashi (deslizamiento)",d:"Kendo",c:"Desplazamiento",niv:1,mus:"piernas, cadera",eq:"piso liso",pas:["Pies casi juntos, peso en puntas","Pie delantero desliza, trasero sigue","Nunca cruzar los pies","El cuerpo viaja como una pieza estable"],err:["Pasos saltados","Pies cruzados (caída)"],prog:"Ayumi-ashi (paso a paso) → tsugi-ashi (acelerado) → combinado con seme (presión)",fu:35},
+{n:"Kote-men (combinación)",d:"Kendo",c:"Ataque combinado",niv:2,mus:"cuerpo entero",eq:"shinai + bōgu",pas:["Seme: presioná el centro del rival","Kote: golpea la muñeca cuando se abre","Contacto y MEN inmediato con el paso","Zanshin: pasá y volví en guardia alerta"],err:["Kote sin intención (solo toque)","Frenar en el contacto"],prog:"Con motodachi (partner que abre) → kakari-geiko → ji-geiko",fu:35},
+{n:"Kamae: posturas del ninjutsu ( Ichimonji no kamae)",d:"Ninjutsu (Bujinkan)",c:"Postura base",niv:1,mus:"piernas, core",eq:"ninguno",pas:["Cuerpo de perfil (blanco chico)","Pierna atrasada cargada, delantera ligera","Brazo delantero protege la línea central","Distancia larga: el ninja no regala el cuerpo"],err:["Postura frontal (blanco grande)","Peso 50-50 (sin movilidad)"],prog:"Posturas estáticas → transiciones → con desplazamientos suri-ashi ninja",fu:35},
+{n:"Zenpo kaiten (rodante frontal ninja)",d:"Ninjutsu",c:"Caída/acrobacia",niv:1,mus:"core, dorsal",eq:"colchoneta o pasto",pas:["Mano y antebrazo al piso en diagonal","Rodilla del mismo lado toca cerca de la mano","Rolá diagonal: hombro a cadera opuesta","Salí de pie mirando al origen"],err:["Rodar frontal por la columna","Salida sin orientación"],prog:"Sentado → agachado → desde carrera → sobre obstáculo bajo",fu:35},
+{n:"Ukemi lateral (caída ninja)",d:"Ninjutsu",c:"Caída segura",niv:1,mus:"core, dorsal",eq:"colchoneta",pas:["Al empuje: bajá el centro y girá","Bofetazo del brazo a 45°","Piernas viven: no caigas plano","Salí rodando o en kamae"],err:["Caída plana dura","Mentón atrás"],prog:"De rodillas → de parado → con empuje real",fu:35},
+{n:"Bojutsu: golpes básicos con palo de 6 pies (rokushakubo)",d:"Ninjutsu / Kobudo",c:"Arma",niv:2,mus:"antebrazo, hombros, core",eq:"bo de madera",pas:["Postura: bo vertical al costado","Golpe descendente desde el centro","Muñecas rotan, el bo viaja como látigo","Recuperá la guardia SIN dejar el bo alto"],err:["Golpear con brazos rígidos","Pies muertos (sin cuerpo detrás)"],prog:"Suburi 50 → con partner con pads → kata de bo",fu:35},
+{n:"Bokken: corte básico (kirikaeshi)",d:"Ninjutsu / Kenjutsu",c:"Arma",niv:2,mus:"hombros, core",eq:"bokken de madera",pas:["Corte vertical desde jodan (alto)","Cortá CON el cuerpo: cadera y pie viajan","Bokken termina apuntando al centro del uke","Control total: es práctica, no forcejeo"],err:["Cortar con brazos solos","Perder la línea central"],prog:"Suburi solo → con uke estático → kata pareado LENTO",fu:35},
+{n:"Shuriken-jutsu (lanzado educativo)",d:"Ninjutsu",c:"Arma histórica",niv:3,mus:"muñeca, hombro",eq:"shuriken de goma/bocho de práctica (NUNCA real)",pas:["Postura lateral, hombro al blanco","Lanzamiento con muñeca firme y sin giro del cuerpo","Bo-sen: el shuriken vuela plano","Practicá SOLO con material didáctico y en escuela con sensei"],err:["Lanzar con fuerza bruta","Practicar con armas reales (prohibido acá)"],prog:"Bocho de goma a diana de goma espuma — disciplina histórica, no juego",fu:35},
+{n:"Suwari waza (técnicas de rodillas)",d:"Ninjutsu / Aikido",c:"Trabajo de suelo tradicional",niv:2,mus:"piernas, core",eq:"tatami",pas:["Shikko: caminado de rodillas erguido","Cadera bajo, columna vertical","Transiciones a kamae desde rodillas","Desarrolla cadera fuerte y postura honesta"],err:["Sentarse en los talones muerto","Columna que cae"],prog:"Shikko 10 m → con técnicas → con uke",fu:35},
+{n:"Kaiten desde agarre de muñeca (escape en espiral)",d:"Ninjutsu",c:"Escape",niv:1,mus:"antebrazo, core",eq:"partner",pas:["El agarre llega: bajá el centro","Girá la muñeca hacia el pulgar rival (el débil)","Escapá en espiral usando todo el cuerpo","Quedá en kamae con distancia"],err:["Pelear fuerza contra fuerza","Sacar solo el brazo sin cuerpo"],prog:"Lento → con agarre firme → con agarre dinámico",fu:35},
+{n:"Defensa 360 (bloqueo de instinto)",d:"Krav Magá",c:"Defensa",niv:1,mus:"antebrazo, core",eq:"partner con pad suave",pas:["Ataque de puñalada/cruzado: el antebrazo sale 45° arriba","Bloqueá con el hueso del antebrazo adelantado","Cuerpo SIEMPRE se mueve del eje del ataque","Contragolpe inmediato (palma/golpe) y escapá"],err:["Bloquear sin mover el cuerpo","Quedarse mirando el arma"],prog:"Con pad suave lento → velocidad media → bajo estrés controlado",fu:35},
+{n:"Defensa de estrangulamiento frontal",d:"Krav Magá",c:"Defensa",niv:2,mus:"hombros, core",eq:"partner (presión moderada)",pas:["Placa: codos adentro entre los brazos del atacante","Golpeá la placa hacia arriba-arriba liberando","Rodillazo/golpe a la entrepierna o palma","Cread distancia y escape"],err:["Tirar de los brazos del rival sin placa","Defensa sin contragolpe"],prog:"Con partner al 30% → con estrés gradual → siempre en escuela",fu:35},
+{n:"Ginga (balanceo base)",d:"Capoeira",c:"Fundamento",niv:1,mus:"piernas, core",eq:"espacio",pas:["Pasos en triángulo atrás-lados","Braços alternan protegiendo la cara","Cadera baja y viva, mirada al otro","Ritmo del berimbau: la ginga es música hecha cuerpo"],err:["Ginga alta (blanco fácil)","Brazos caídos"],prog:"Ginga lenta → al ritmo → con esquivas y saltos encima",fu:35},
+{n:"Meia lua de compasso (media luna con manos)",d:"Capoeira",c:"Patada",niv:2,mus:"core, isquios, brazos",eq:"espacio",pas:["Paso base y giro sobre el pie de apoyo","Manos al piso (una o dos)","Pierna barre en arco alto hacia la cabeza rival","Volvé a ginga sin parar el juego"],err:["Patada sin manos (pierde el arco)","Perder el ritmo"],prog:"Con apoyo de pared → suave → en roda con profesor",fu:35},
+{n:"Esquiva (esquivar abajo)",d:"Capoeira",c:"Defensa",niv:1,mus:"piernas, core",eq:"espacio",pas:["Bajá el torso al lado de la pierna de apoyo","Mano al piso (o casi)","Mirada siempre al compañero","Salí por abajo a la ginga de nuevo"],err:["Cerrar los ojos","Bajar sin mirar"],prog:"Esquiva sola → contra meia lua suave → en roda",fu:35},
+{n:"Martelo (martillo)",d:"Capoeira",c:"Patada",niv:2,mus:"glúteo, core",eq:"espacio",pas:["Rodilla sube lateral","Giro de cadera: la pierna cae como martillo","Empeine o planta al objetivo","Volvé a ginga"],err:["Patada sin giro","Torso que cae"],prog:"Con barra → suave → con distancing en roda",fu:35},
+{n:"Vadivu (postura animal de kalari)",d:"Kalari Payattu",c:"Postura",niv:2,mus:"piernas, core",eq:"espacio",pas:["Posturas inspiradas en animales (caballo, elefante)","Rodillas profundas y arcos amplios","Las posturas encadenan en meypayattu (secuencias)","Respiración con la secuencia"],err:["Postura alta (pierde la raíz)","Secuencia sin respiración"],prog:"Ashva vadivu → gaja vadivu → meypayattu completo",fu:35},
+{n:"Meypayattu (forma de cuerpo)",d:"Kalari Payattu",c:"Forma",niv:3,mus:"cuerpo entero",eq:"kalari (espacio de práctica)",pas:["Secuencia larga de posturas y saltos","Flujo continuo con contracciones (potencia)","Cada giro acaba en postura firme","Es la gimnasia de combate más vieja documentada"],err:["Cortar el flujo","Posturas borradas"],prog:"Con maestro: segmentos → forma completa → con armas de madera",fu:35},
+{n:"Respiración de onda (systema)",d:"Systema ruso",c:"Respiración",niv:1,mus:"respiratorio, core",eq:"ninguno",pas:["Inhalá por nariz al subir/expandir","Exhalá por boca al esfuerzo/golpe","La respiración lleva el movimiento, no al revés","Bajo tensión: respirá más corto y frecuente"],err:["Aguantar la respiración bajo golpe","Respiración sin relación al movimiento"],prog:"Respiración en calma → con flexiones → con trabajo de golpe suave",fu:35},
+{n:"Trabajo de golpe y absorción (systema)",d:"Systema ruso",c:"Golpe/absorción",niv:2,mus:"cuerpo entero",eq:"partner",pas:["Partner golpea el abdomen/pecho al 30%","Absorbé con respiración y relajación del tejido","Devuelve con estructura, no con rigidez","Progresión de intensidad MUY gradual"],err:["Tensionar el cuerpo (duele más)","Progresar rápido sin base"],prog:"Golpes suaves → medios → con desplazamiento",fu:35},
+{n:"Flanqueo (fleche/estocada) en esgrima",d:"Esgrima",c:"Ataque",niv:2,mus:"piernas, core",eq:"florete/espada/sable + pista",pas:["Extensión del brazo PRIMERO","Pierna delantera lanza la estocada","Cuerpo perfilado: blanco chico","Retorno inmediato a en garde"],err:["Pierna antes que brazo (te leen)","Cuerpo frontal (blanco grande)"],prog:"Estocada al espejo → con maestro → con sensor y pista eléctrica",fu:35},
+{n:"Parada de cuarta y riposta",d:"Esgrima",c:"Defensa",niv:2,mus:"antebrazo, piernas",eq:"arma de práctica",pas:["Desvíe el arma rival con tu fuerte contra su débil","Parada corta: la mano queda al centro","Riposta inmediata al blanco abierto","Distancia: la parada sin riposta es media acción"],err:["Parada con brazo extendido","Riposta tarde"],prog:"Paradas solas → con pauteo → asalto de entrenamiento",fu:35},
+{n:"Sable: ataque de flèche con paso cruzado",d:"Esgrima",c:"Ataque",niv:3,mus:"piernas, core",eq:"sable",pas:["El sable premia la velocidad de mano","Marcha y fleche combinadas","Corte al antebrazo o cabeza (derecho de preferencia)","Pasar y volver a guardia"],err:["Fleche sin derecha clara","Mano atrás (prioridad perdida)"],prog:"Solo con maestro y equipo eléctrico: footwork → marcaje → asalto",fu:35},
+{n:"Sambo: proyección con pierna (sweep)",d:"Sambo",c:"Proyección",niv:2,mus:"piernas, core",eq:"kurtka + colchoneta",pas:["Desequilibrio lateral del rival","Barré el pie de apoyo con el tuyo","Manos continúan el viaje del kurtka","Cae y controlá para transición"],err:["Barrido sin kuzushi","Agarre flojo del kurtka"],prog:"Uchi-komi → con caída → en combate de entrenamiento",fu:35},
+{n:"Sambo: defensa de pierna (leg lock defensivo)",d:"Sambo / Grappling",c:"Sumisión de pierna",niv:3,mus:"piernas, agarre",eq:"partner (SIN final en práctica)",pas:["Control de la pierna con axila","Brazo controla el talón lejos del pecho","Girá la rodilla con el cuerpo entero","En práctica: 20% y tap inmediato"],err:["Aplicar con velocidad (rodilla frágil)","Sin control del ángulo de la rodilla"],prog:"SOLO con profesor de sambo/grappling: entradas lentas",fu:35},
+{n:"Sanda: patada con catch y barrido",d:"Sanda (kickboxing chino)",c:"Contrapatada",niv:3,mus:"piernas, equilibrio",eq:"partner + colchonetas",pas:["Atrapá la patada rival bajo el brazo","Paso lateral ganando el ángulo","Barré la pierna de apoyo","Solta con control — deporte, no pelea"],err:["Atrapar sin paso (te empujan)","Barrido con fuerza excesiva"],prog:"Catch al pad → con partner al 50% → en randori de sanda",fu:35},
+//==DATA_F==
+{n:"Tiro libre de básquet",d:"Básquet",c:"Tiro",niv:1,mus:"piernas, hombro, muñeca",eq:"pelota + aro",pas:["Pies al ancho, hombros al aro","Flexión de piernas y extensión en una línea","Muñeca de latigazo al final","Arco alto: el aro perdona lo alto, no lo plano"],err:["Tirar solo de brazos","Codo abierto"],prog:"A 1,5 m → media distancia → línea de tres con arco consistente",fu:35},
+{n:"Lanzamiento en suspensión (jump shot)",d:"Básquet",c:"Tiro",niv:2,mus:"piernas, core",eq:"pelota",pas:["Recibí ya bajando el centro","Salto vertical con bola lista arriba","Soltá en el punto más alto","Caé con base lista para el rebote"],err:["Tirar bajando","Doble impulso de piernas"],prog:"Estático → con salida → con defensor",fu:35},
+{n:"Bandeo (lay-up) derecho",d:"Básquet",c:"Finalización",niv:1,mus:"piernas",eq:"pelota + aro",pas:["Dos pasos: derecho-izquierdo","Salto con la rodilla libre arriba","Apoyá la pelota al aro suave de tabla","Aterrizá equilibrado"],err:["Salto de la pierna incorrecta","Lanzar fuerte a la tabla"],prog:"Sin defensa → con defensa → en transición",fu:35},
+{n:"Rebote defensivo con caja",d:"Básquet",c:"Rebote",niv:1,mus:"piernas, core",eq:"pelota",pas:["Mirá el aro al soltarse el tiro","Hacé caja: codos fuera, cuerpo ancho","Salto con dos pies al frente del rival","Atrapá con dos manos y protegé"],err:["Mirar la pelota sin hacer caja","Saltar de un pie sin control"],prog:"Caja seca → con rebote real → en partido",fu:35},
+{n:"Saque de vóley (tennis serve)",d:"Vóley",c:"Saque",niv:2,mus:"hombro, core",eq:"pelota",pas:["Tres pasos rítmicos con lance","Bola arriba-adelante de la mano golpeadora","Latigazo de tronco y hombro","Caída y entrada a la cancha"],err:["Lance sin ritmo","Bola atrás de la cabeza"],prog:"Saque parado → con lance → apuntando zonas",fu:35},
+{n:"Remate (spike)",d:"Vóley",c:"Ataque",niv:2,mus:"piernas, hombro",eq:"pelota + red",pas:["Aproximación de tres pasos","Salto con brazos arriba (impulso de brazos)","Golpe de mano abierta arriba-adelante de la bola","Caída equilibrada y cubrí al bloqueo"],err:["Saltar debajo de la bola","Golpe de muñeca sin brazo"],prog:"Bola fija → armada baja → armada real con bloqueo",fu:35},
+{n:"Bloqueo de vóley",d:"Vóley",c:"Defensa",niv:2,mus:"piernas, hombros",eq:"red",pas:["Manos arriba pegadas al salir","Dedos abiertos y firmes (no planas)","Penetrá las manos por encima de la red","Aterrizá y listos al contraataque"],err:["Cerrar los ojos al remate","Saltar tarde"],prog:"Pared de bloqueo → con rematador → doble bloqueo coordinado",fu:35},
+{n:"Manos de vóley (overhead pass)",d:"Vóley",c:"Fundamento",niv:1,mus:"dedos, hombros",eq:"pelota",pas:["Manos en copa arriba de la frente","Contacto con dedos, no palmas","Extensión de brazos y muñecas al destino","Pies listos antes de la bola"],err:["Palmeadas (falta)","Manos bajas"],prog:"Pared 50 → en parejas → en red con armada",fu:35},
+{n:"Placaje de rugby (tackle)",d:"Rugby",c:"Defensa",niv:2,mus:"piernas, core",eq:"partner + colchonetas",pas:["Hombro al muslo del portador","Mejilla contra el muslo (cheek to cheek)","Piernas empujando como sentadilla","Caída controlada y lucha por la posesión"],err:["Cabeza delante del cuerpo (riesgo)","Entrar con el hombro alto"],prog:"Con maniquí → con partner a 50% → en ruck situation",fu:35},
+{n:"Pase de rugby a dos manos",d:"Rugby",c:"Pase",niv:1,mus:"core rotador, hombros",eq:"pelota ovalada",pas:["Pelota a la altura del pecho","Giro de cadera hacia el destino","Manos apuntan al receptor al final","El pase llega al pecho del compañero"],err:["Pase de brazos sin cadera","Mirar la pelota"],prog:"Pases parados → corriendo en línea → bajo presión",fu:35},
+{n:"Lanzamiento de handball en suspensión",d:"Handball",c:"Tiro",niv:2,mus:"piernas, hombro",eq:"pelota de handball",pas:["Tres pasos de carrera con bola","Salto con rodilla libre arriba","Brazo de latigazo con codo alto","Tiro al ángulo y caída protegida"],err:["Tirar con codo bajo","Pisar la línea de área"],prog:"Parado → con salto → con arquero",fu:35},
+{n:"Golpe de derecha (forehand) tenis",d:"Tenis",c:"Golpe",niv:1,mus:"core rotador, hombro",eq:"raqueta + pelota",pas:["Preparación temprana con hombro girado","Pisa lateral y peso adelante","Zona de impacto adelante-al costado","Seguimiento del brazo al hombro opuesto"],err:["Preparar tarde","Golpear con el cuerpo de frente"],prog:"Peloteo al paredón → con partner → con dirección",fu:35},
+{n:"Revés a dos manos",d:"Tenis",c:"Golpe",niv:2,mus:"core, ambos hombros",eq:"raqueta",pas:["Giro completo de hombros (la espalda mira la bola)","Dominante empuja, no dominante guía","Impacto adelante del pie adelantado","Seguimiento envolvente"],err:["Golpe de brazos sin giro","Impacto atrás"],prog:"Paredón → media cancha → con direcciones variables",fu:35},
+{n:"Saque de tenis",d:"Tenis",c:"Saque",niv:2,mus:"hombro, core, piernas",eq:"raqueta",pas:["Lance coordinado con el codo alto","Ritmo: lanzar, arco, latigazo","Impacto en el punto más alto","Cae dentro de la cancha y listos"],err:["Lance inconsistente","Codo bajo en el impacto"],prog:"50% velocidad → spin → colocación de T",fu:35},
+{n:"Derecha de paddel (bandeja)",d:"Paddel",c:"Golpe de defensa",niv:2,mus:"hombro, core",eq:"pala",pas:["Preparación temprana de perfil","Golpe plano a media altura","Impacto adelante con corte suave","La bandeja busca la esquina y el rebote bajo"],err:["Golpear fuerte sin control","Impacto atrás del cuerpo"],prog:"Bandeja lenta → con dirección → en partido",fu:35},
+{n:"Viboreo (víbora) de paddel",d:"Paddel",c:"Golpe corto",niv:3,mus:"muñeca, antebrazo",eq:"pala",pas:["Pala corta y firme adelante","Impacto a la altura de la red abajo","Corte desagradable con cara abierta","Buscá las paredes del rival"],err:["Golpe largo (se va de la cancha)","Muñeca suelta"],prog:"Repetición estática → en red → en punto real",fu:35},
+{n:"Dribling de hockey sobre césped",d:"Hockey",c:"Manejo",niv:2,mus:"piernas, muñecas",eq:"stick + bola",pas:["Agarre relajado, mano izquierda arriba","La bola pegada al stick al costado","Manos bajas y rodillas flexionadas","Mirada arriba mientras driblás"],err:["Mirar la bola siempre","Manos rígidas"],prog:"Conos en línea → con velocidad → con rival",fu:35},
+{n:"Tiro al arco de hockey (push)",d:"Hockey",c:"Tiro",niv:2,mus:"piernas, hombros",eq:"stick + bola",pas:["Bola al costado del pie adelantado","Manos juntas empujando la bola","Transferencia de peso adelante","Seguimiento hacia el ángulo"],err:["Golpe de slap sin control","Bola lejos del cuerpo"],prog:"Push parado → con carrera → con arquero",fu:35},
+{n:"Tiro con arco olímpico",d:"Arquería",c:"Precisión",niv:2,mus:"espalda, hombros",eq:"arco recurvo",pas:["Postura lateral, pies en línea","Anclaje consistente (mano a la cara)","Apertura de espalda sin mover el anclaje","Suelta limpia y mantención de la postura"],err:["Soltar anticipado","Anclaje variable"],prog:"Banda elástica → 5 metros → 18 metros con cronómetro",fu:35},
+{n:"Tiro deportivo (pistola de aire)",d:"Tiro olímpico",c:"Precisión",niv:2,mus:"estabilidad, respiración",eq:"pistola de aire (club habilitado)",pas:["Posición natural de puntería (NPA)","Respiración: pausa en la exhala","Prensión constante y presión progresiva","Seguimiento del disparo"],err:["Apretar el gatillo con jadeo","Mover la posición para corregir la mira"],prog:"SOLO en club con instructor: blanco seco → 10 m → competencia",fu:35},
+{n:"Virada de vela (tack)",d:"Vela",c:"Maniobra",niv:2,mus:"core, piernas",eq:"vela ligera",pas:["Preparar escotas y mirar el viento","Orzá hasta que la vela tiemble","Cruzá la botavara y cambiá de banda","Ajustá el rumbo nuevo con la escota"],err:["Virar tarde (parada en seco)","Quedarse del lado incorrecto"],prog:"Con instructor en agua calma → con viento suave → regata",fu:35},
+{n:"Trampolín: rodante atrás agrupada",d:"Trampolín",c:"Acrobacia",niv:3,mus:"core, piernas",eq:"trampolín + supervisión",pas:["Salto vertical agrupado","Rotación atrás con mentón al pecho","Abrí a tiempo para ver el trampolín","Aterrizá en el centro con piernas listas"],err:["Abrirse tarde","Salir del centro"],prog:"SIEMPRE con supervisor: espalda → agrupada → con giros",fu:35},
+{n:"Gimnasia rítmica: molinos de cinta",d:"Gimnasia rítmica",c:"Manejo de aparato",niv:2,mus:"hombro, muñeca",eq:"cinta",pas:["Círculos amplios de muñeca","La cinta dibuja espirales sin nudos","Cambios de plano con el cuerpo entero","Ritmo con la música"],err:["Círculos de brazo (nudos)","Perder el ritmo musical"],prog:"Espirales simples → en plano → figuras completas",fu:35},
+{n:"Waterpolo:eggbeater (patada de agua)",d:"Waterpolo",c:"Fundamento acuático",niv:3,mus:"piernas, core",eq:"pileta profunda",pas:["Postura vertical con patada alternada de pecho","Círculos de piernas como batidor","Manos listas arriba del agua","Altura estable para tirar"],err:["Patada de braza (no sostiene)","Cuerpo hundido"],prog:"Con flotador → sin manos → con bola tirando",fu:35},
+{n:"Bádminton: clear (golpe profundo)",d:"Bádminton",c:"Golpe",niv:1,mus:"hombro, antebrazo",eq:"raqueta + volante",pas:["Golpe sobre la cabeza adelante","Latigazo de antebrazo al final","Volante al fondo rival","Volvé al centro de la cancha"],err:["Golpear con codo bajo","Mirar el golpe sin recuperar el centro"],prog:"Clears parejos → con dirección → en juego",fu:35},
+{n:"Swing de golf",d:"Golf",c:"Golpe",niv:3,mus:"core rotador, hombros",eq:"palos + pelota",pas:["Grip neutral y postura atlética","Backswing con giro de hombros","Downswing: cadera guía, brazos siguen","Impacto con manos adelante del palo"],err:["Golpear con manos atrás","Girar sin transferir peso"],prog:"Pitch corto → hierro 7 → driver con instructor",fu:35},
+{n:"Escalada deportiva: bouldering básico",d:"Escalada",c:"Escalada",niv:2,mus:"antebrazos, core, piernas",eq:"muro de boulder + colchones",pas:["Mirá la ruta antes de subir (beta)","Pies precisos antes que fuerza de brazos","Cadera pegada a la pared","Caída controlada sobre colchones"],err:["Colgarse de brazos (bombeo)","Subir sin leer la ruta"],prog:"V0-V1 → V2-V3 → proyectos con profesor",fu:35},
+{n:"Esgrima de sable: marcha y fleche",d:"Esgrima (sable)",c:"Desplazamiento",niv:2,mus:"piernas",eq:"sable + pista",pas:["Marcha con paso adelantado corto","Flèche: explosión del pie trasero","Cuerpo perfilado con mano atrás","Recuperar en garde tras cada acción"],err:["Cruzar los pies","Fleche sin distancia"],prog:"Footwork solo → con marcaje → con sensor",fu:35},
+
+//==DATA_E==
+{n:"FNP isquiotibiales con toalla (CRAC)",d:"Flexibilidad (FNP)",c:"Estiramiento negociado",niv:1,mus:"isquiotibiales",eq:"toalla",pas:["Acostado, pierna extendida con toalla en la planta","Entrá al 30% de tensión","Empujá el talón contra la toalla 6 seg al 30% de fuerza","Soltá 10 seg y reentrá en la exhala — 3 ciclos"],err:["Empujar al 100% (pelea con el guardia)","Reentrar en la inhala"],prog:"3 ciclos por pierna, 3 veces por semana — semáforo: verde-amarillo, nunca rojo",fu:54},
+{n:"FNP de pectoral en marco de puerta",d:"Flexibilidad (FNP)",c:"Estiramiento negociado",niv:1,mus:"pectoral, deltoides anterior",eq:"marco de puerta",pas:["Antebrazo en el marco a la altura del hombro","Girá el torso hasta tensión leve","Empujá el antebrazo contra el marco 6 seg","Soltá, respirá, ganá 2 grados en la exhala"],err:["Hombro que sube al empujar","Estiramiento punzante (siempre suave)"],prog:"3 ángulos (alto, medio, bajo) × 3 ciclos",fu:54},
+{n:"Estiramiento ruso de tensión-relajación (gemelos)",d:"Flexibilidad (escuela rusa)",c:"Estiramiento con fuerza",niv:2,mus:"gemelos, sóleo",eq:"pared o escalón",pas:["Punta del pie en el escalón, talón abajo","Contrá el gemelo empujando la punta 6 seg al 50%","Esperá que el músculo 'se rinda' respirando","Ganá rango y repetí — sin dolor nunca"],err:["Forzar sin la contracción previa","Método avanzado: primero dominá FNP suave"],prog:"2-3 ciclos por pierna post-entrenamiento",fu:54},
+{n:"Perro boca abajo (adho mukha)",d:"Yoga",c:"Postura",niv:1,mus:"línea posterior completa",eq:"colchoneta",pas:["Manos y pies al piso, cadera alta","Empujá el suelo, espalda larga","Rodillas pueden ir blandas","5 respiraciones con exhala larga"],err:["Hombros comidos al cuello","Rodillas bloqueadas con espalda redonda"],prog:"Versión escritorio (manos en mesa) → completa → con un talón a la vez",fu:54},
+{n:"Cobra (bhujangasana) suave",d:"Yoga",c:"Postura",niv:1,mus:"línea anterior, lumbar",eq:"colchoneta",pas:["Boca abajo, manos bajo hombros","Pecho adelante-arriba SIN apurar con manos","Hombros lejos de orejas","3-5 respiraciones sin dolor lumbar"],err:["Empujar con brazos y colapsar lumbar","Mirar al techo forzando nuca"],prog:"Sphinx (codos) → cobra media → completa",fu:54},
+{n:"Postura del niño extendido (balasana)",d:"Yoga",c:"Postura de descanso",niv:1,mus:"espalda, hombros, cadera",eq:"colchoneta",pas:["Rodillas al piso, grandes dedos juntos","Tronco adelante, brazos lejos","Frente (o mejilla) al piso","1-3 minutos respirando en la espalda"],err:["Cadera que no llega: separá rodillas","Hombros al oreja"],prog:"60-90 seg → con rodillas separadas → lateral (ambos lados)",fu:54},
+{n:"Paloma (eka pada rajakapotasana) preparada",d:"Yoga",c:"Apertura de cadera",niv:2,mus:"glúteo, flexor de cadera",eq:"colchoneta + almohada",pas:["Espinilla delantera en diagonal (más vertical = más abierto)","Almohada bajo la cadera para honestidad","Tronco adelante sobre almohadas","2-3 min por lado respirando suave"],err:["Cadera colgada (twist lumbar)","Forzar la rotación profunda sin años de práctica"],prog:"Sentado en silla (figura 4) → paloma apoyada → paloma vertical",fu:54},
+{n:"Yin: rana (mandukasana)",d:"Yin Yoga",c:"Apertura profunda de tejido",niv:3,mus:"aductores, flexores",eq:"colchoneta + almohadas",pas:["Rodillas amplias, tobillos alineados","Bajá a antebrazos o almohadas","2-5 minutos SIN moverse: el tejido conectivo pide tiempo","Salí lento, de lado"],err:["Moverse dentro de la postura (rompe la dosis yin)","Dolor articular (no muscular): salir"],prog:"90 seg → 3 min → 5 min con apoyo total",fu:54},
+{n:"Los ocho brocados (baduanjin) completos",d:"Qigong",c:"Secuencia",niv:1,mus:"cuerpo entero",eq:"2 metros cuadrados",pas:["Sostener el cielo — línea lateral","Tirar del arco — apertura pectoral","Cielo y tierra — molino vertical","Búho mira atrás — rotación dorsal","Cabeza y cadera — lateral lumbar","Tocar los pies — posterior","Puños fieros — fuerza y mirada","Levantar talones — cierre y equilibrio"],err:["Hacerlo rápido (la lentitud ES la técnica)","Bloquear rodillas"],prog:"Un brocado por semana hasta la secuencia completa — 10 min diarios",fu:54},
+{n:"La pared de los tres minutos (RPG casera)",d:"RPG (Francia)",c:"Apertura global",niv:1,mus:"cadena posterior completa",eq:"pared + toalla",pas:["Espalda a la pared: cabeza, escápulas, sacro en contacto","Piernas estiradas (o rodillas flexionadas si hace falta)","10 respiraciones costales con exhala larga","Tres ciclos con tracción activa suave"],err:["Empujar la cabeza contra la pared","Respirar solo con la panza"],prog:"3 min × 3-5 veces por semana — salida de lado, nunca adelante",fu:54},
+{n:"Ojos guían la nuca (Feldenkrais)",d:"Educación somática",c:"Exploración",niv:1,mus:"cuello, sistema nervioso",pas:["Acostado: girá cabeza y ojos juntos a la derecha, 3 veces","Solo los ojos derecha × 3","Cabeza derecha, ojos izquierda × 3 (la diferenciación)","Test de nuevo: el arco crece sin que estires nada"],err:["Buscar estiramiento (acá se busca percepción)","Velocidad en vez de atención"],prog:"10 min, 3 veces por semana — ideal en días de estrés",eq:"piso",fu:54},
+{n:"Do-in de los cinco pulgares",d:"Do-in (Japón)",c:"Auto-shiatsu",niv:1,mus:"trapecio, cuello, antebrazo, planta",eq:"manos + pelota de tenis",pas:["Trapecio en pinza 30% del dolor, 60 seg","Base del cráneo con dos pulgares, 60 seg","Antebrazo del mouse: presión en puntos granito","Planta del pie con pelota 90 seg + hara respiración 60 seg"],err:["Presión que entra de golpe","Presión que sube el dolor (baja el tono o aflojá)"],prog:"4 minutos diarios — la presión entra en la inhala y sale en la exhala",fu:54},
+{n:"Pilates: the hundred",d:"Pilates",c:"Core + respiración",niv:2,mus:"core profundo",eq:"colchoneta",pas:["Boca arriba, piernas en tabla (o rodillas 90°)","Brazos bombean al ritmo de la respiración","Inhalá 5 golpes, exhalá 5 golpes","Curl de hombros, lumbar neutral"],err:["Cuello que trabaja (bajalo si duele)","Apnea en el bombeo"],prog:"20 golpes → 50 → 100 con piernas extendidas",fu:54},
+{n:"Pilates: bridge (puente con control)",d:"Pilates",c:"Bisagra + core",niv:1,mus:"glúteo, isquios, core",eq:"colchoneta",pas:["Pies al piso, exhala y enrodillá la pelvis","Subí vértebra a vértebra","Cima: línea hombro-rodilla sin arco","Bajá pecho a coxis vértebra por vértebra"],err:["Empujar con lumbar (arco)","Subir de golpe sin control"],prog:"8 reps lentas → con pausa arriba → una pierna extendida",fu:54},
+{n:"90/90 cadera (mobility)",d:"Mobility moderno",c:"Rotación de cadera",niv:1,mus:"glúteo, flexores, rotadores",eq:"piso",pas:["Sentado: pierna delantera a 90°, trasera a 90°","Pecho alto, incliná al frente de la pierna delantera","Cambiá de lado SIN manos si podés","2 min por lado, respirando"],err:["Colapsar la lumbar (mejor menos ángulo)","Rebotar en el cambio"],prog:"Con manos → con peso adelante → cambio fluido sin manos",fu:54},
+{n:"Cossack squat (sentadilla cosaca)",d:"Mobility / Fuerza",c:"Movilidad + fuerza",niv:2,mus:"aductores, cuádriceps, tobillos",eq:"peso corporal",pas:["Pies muy amplios, puntas al frente","Sentate hacia un lado, pierna contraria extendida","Talón del lado que baja SIEMPRE apoyado","Alterná lados con control"],err:["Talón que se levanta (reducí profundidad)","Torso que cae adelante"],prog:"Agarrado de soporte → libre → con peso en pecho",fu:54},
+{n:"Dislocaciones de hombro con palo",d:"Mobility",c:"Movilidad de hombro",niv:1,mus:"hombro completo",eq:"palo o toalla",pas:["Agarre amplio, brazos extendidos","Llevá el palo por encima y detrás","Regresá al frente con control","El ancho se achica con los meses, no con fuerza"],err:["Agarre estrecho al inicio","Doblar codos para pasar"],prog:"Ancho cómodo 10 reps → achicá 2 cm por semana",fu:54},
+{n:"Test del suelo (SRT)",d:"Longevidad funcional",c:"Test",niv:1,mus:"piernas, cadera, equilibrio",eq:"piso limpio (y compañía si +65)",pas:["De parado, sentate en el piso cruzado sin apoyar nada","Cada apoyo: −1 punto · inestable: −0,5","Parate igual: 5 puntos máx","Sumá ambos: 10 = excelente — cada punto vale años (Araujo 2012)"],err:["Hacerlo solo con historial de caídas","Competir contra otros (competí contra tu foto)"],prog:"Medir día 1 y día 21 del protocolo del libro 54",fu:54},
+{n:"Caminata consciente (tai chi walking)",d:"Tai Chi / Qigong",c:"Desplazamiento",niv:1,mus:"piernas, equilibrio",eq:"2 metros",pas:["Paso como si pisaras hielo delgado: primero el talón liviano","Peso se pasa SOLO cuando el pie está plantado","Rodillas blandas, cadera quieta","5 minutos lentos: el río en versión caminata"],err:["Pasar el peso antes de apoyar","Paso largo veloz"],prog:"5 min → ojos entornados → con giro de 180° incluido",fu:54},
+{n:"Del mock (apertura de pecho en piso)",d:"Mobility",c:"Apertura pectoral",niv:2,mus:"pectoral, dorsal, hombro",eq:"rodillo de espuma o toalla larga",pas:["Rodillo vertical bajo toda la columna","Brazos en cactus o en cruz con peso leve","Pecho abierto, costillas abajo","3-5 minutos respirando costal"],err:["Lumbar en arco (bajá brazos)","Peso en muñecas (apoya antebrazos)"],prog:"2 min sin peso → con mancuernas livianas → brazos más arriba",fu:54},
+{n:"Sentadilla de descanso (resting squat)",d:"Movimiento natural",c:"Postura humana original",niv:1,mus:"cadera, tobillos, rodillas",eq:"piso (tal vez apoyo)",pas:["Pies algo abiertos, talones abajo","Bajá completo con pecho alto","Codos pueden empujar adentro de las rodillas","Tiempo acumulado: 1-10 min diarios"],err:["Talones que no llegan (usá libro bajo talón al inicio)","Forzar minutos de golpe"],prog:"30 seg con apoyo → 2 min → con trabajo de manos adelante (tejer, leer)",fu:54},
+{n:"Colgadera de barra (dead hang)",d:"Movimiento natural / Fuerza",c:"Descompresión + hombro",niv:1,mus:"hombros, antebrazo, columna",eq:"barra",pas:["Colgá con agarre cómodo","Hombros activos (no orejas al cielo)","Respirá lento y dejá que la columna se alargue","30-60 seg por serie"],err:["Colgarse muerto total (hombro inestable)","Agarre excesivamente ancho"],prog:"30 seg → 2 min → con balanceos suaves (sociedades del hombro)",fu:54},
+];
+
+// ---- figuras animadas: cada movimiento cicla 3 posiciones clave ----
+// articulaciones: h=cabeza n=cuello p=pecho/hip k=rodillas f=pies e=codos m=manos
+const P=(h,n,hip,k1,k2,f1,f2,e1,e2,m1,m2)=>({h,n,hip,k:[k1,k2],f:[f1,f2],e:[e1,e2],m:[m1,m2]});
+const ANIMS={
+sentadilla:[P([100,38],[100,62],[100,120],[84,140],[116,140],[72,196],[128,196],[78,86],[122,86],[62,66],[138,66]),P([100,36],[100,58],[100,122],[72,158],[128,158],[62,204],[138,204],[76,92],[124,92],[60,102],[140,102]),P([100,34],[96,54],[100,148],[64,188],[136,188],[52,214],[148,214],[74,104],[126,110],[58,140],[142,142])],
+bisagra:[P([100,38],[100,62],[100,120],[84,140],[116,140],[72,196],[128,196],[78,86],[122,86],[62,66],[138,66]),P([126,44],[118,66],[102,122],[84,146],[114,146],[70,198],[126,198],[132,72],[152,96],[148,50],[176,120]),P([150,58],[136,74],[102,124],[82,150],[112,150],[68,200],[124,200],[148,84],[164,110],[176,66],[190,136])],
+empuje:[P([100,38],[100,60],[100,118],[86,142],[114,142],[74,196],[126,196],[80,78],[120,78],[70,60],[130,60]),P([100,38],[100,60],[100,118],[86,142],[114,142],[74,196],[126,196],[76,74],[124,74],[96,58],[104,58]),P([100,38],[100,60],[100,118],[86,142],[114,142],[74,196],[126,196],[86,64],[114,64],[70,34],[130,34])],
+traccion:[P([100,38],[100,60],[100,118],[86,142],[114,142],[74,196],[126,196],[86,64],[114,64],[70,34],[130,34]),P([100,38],[100,60],[100,118],[86,142],[114,142],[74,196],[126,196],[84,72],[116,72],[92,58],[108,58]),P([100,38],[100,60],[100,118],[86,142],[114,142],[74,196],[126,196],[88,80],[112,80],[100,54],[100,54])],
+core:[P([100,44],[100,64],[100,112],[88,150],[112,150],[76,206],[124,206],[84,80],[116,80],[72,62],[128,62]),P([96,46],[98,64],[104,112],[120,152],[88,152],[136,208],[78,206],[88,78],[116,84],[66,64],[132,70]),P([100,44],[100,64],[100,112],[88,150],[112,150],[76,206],[124,206],[84,80],[116,80],[60,52],[140,52])],
+golpe:[P([96,40],[96,62],[96,118],[82,142],[110,142],[70,196],[122,196],[80,80],[116,80],[74,62],[118,72]),P([96,40],[96,62],[96,118],[80,144],[108,144],[68,198],[120,198],[88,78],[124,76],[96,60],[128,66]),P([96,40],[96,62],[96,118],[78,146],[106,146],[66,200],[118,200],[94,76],[128,72],[80,58],[152,66])],
+patada:[P([96,40],[96,62],[96,116],[82,142],[110,142],[70,196],[122,196],[80,80],[116,80],[70,60],[130,60]),P([92,44],[92,64],[96,118],[128,104],[84,146],[70,198],[120,200],[80,82],[120,84],[66,64],[134,68]),P([90,44],[90,64],[96,118],[156,88],[84,146],[70,198],[120,200],[80,82],[122,84],[64,62],[138,66])],
+proyeccion:[P([96,40],[96,62],[96,118],[84,142],[112,142],[72,196],[124,196],[84,80],[128,80],[72,62],[146,70]),P([96,40],[96,62],[96,122],[72,152],[128,138],[62,202],[140,190],[76,84],[124,88],[56,96],[150,110]),P([96,42],[96,64],[100,128],[70,178],[134,168],[60,216],[148,200],[78,92],[128,98],[52,128],[152,146])],
+suelo:[P([130,60],[126,76],[112,118],[84,150],[92,178],[68,196],[110,206],[118,88],[142,96],[128,72],[160,86]),P([130,60],[126,76],[112,118],[84,150],[92,178],[68,196],[110,206],[112,90],[146,84],[116,72],[168,74]),P([130,62],[126,78],[112,120],[80,152],[90,180],[66,198],[108,208],[110,92],[150,80],[110,74],[176,70])],
+postura:[P([100,40],[100,62],[100,118],[86,142],[114,142],[74,196],[126,196],[82,80],[118,80],[76,100],[124,100]),P([100,38],[100,60],[100,118],[86,142],[114,142],[74,196],[126,196],[80,78],[120,78],[78,76],[122,76]),P([100,36],[100,58],[100,118],[86,142],[114,142],[74,196],[126,196],[80,74],[120,74],[96,30],[104,30])],
+caida:[P([100,40],[100,62],[100,118],[86,142],[114,142],[74,196],[126,196],[82,80],[118,80],[74,62],[126,62]),P([100,58],[100,74],[100,120],[70,160],[130,160],[58,206],[142,206],[76,92],[124,92],[58,112],[142,112]),P([100,120],[100,128],[100,146],[100,146],[100,146],[100,146],[100,146],[78,132],[122,132],[64,112],[136,112])],
+cardio:[P([100,40],[100,62],[100,118],[86,142],[114,142],[74,196],[126,196],[82,80],[118,80],[74,62],[126,62]),P([100,80],[100,96],[100,138],[84,166],[116,166],[70,212],[130,212],[84,140],[116,140],[70,120],[130,120]),P([100,30],[100,52],[100,106],[88,130],[112,130],[76,182],[124,182],[82,72],[118,72],[70,40],[130,40])],
+salto:[P([100,40],[100,62],[100,118],[86,142],[114,142],[74,196],[126,196],[82,80],[118,80],[74,62],[126,62]),P([100,52],[100,72],[100,124],[70,164],[130,164],[60,210],[140,210],[78,88],[122,88],[62,108],[138,108]),P([100,16],[100,38],[100,92],[80,116],[120,116],[58,160],[142,160],[80,58],[120,58],[62,30],[138,30])],
+equilibrio:[P([100,40],[100,62],[100,118],[86,142],[114,142],[74,196],[126,196],[82,80],[118,80],[74,62],[126,62]),P([100,40],[100,62],[100,120],[86,146],[120,108],[74,198],[126,158],[82,80],[118,80],[74,62],[126,62]),P([100,40],[100,62],[100,120],[86,146],[124,102],[74,198],[128,152],[82,80],[124,76],[74,62],[132,60])],
+estiramiento:[P([100,40],[100,62],[100,118],[86,142],[114,142],[74,196],[126,196],[82,80],[118,80],[74,62],[126,62]),P([112,46],[108,66],[100,120],[86,144],[114,144],[74,198],[126,198],[92,82],[124,84],[86,66],[134,70]),P([128,56],[120,74],[100,122],[86,146],[114,146],[74,200],[126,200],[106,86],[134,96],[112,74],[148,94])],
+arma:[P([96,42],[96,64],[96,118],[82,142],[110,142],[70,196],[122,196],[82,80],[130,62],[74,62],[168,40]),P([96,42],[96,64],[96,118],[80,144],[108,144],[68,198],[120,198],[84,78],[128,58],[78,58],[158,34]),P([96,44],[96,66],[96,120],[76,148],[104,148],[64,202],[116,202],[90,80],[136,86],[90,66],[176,96])]
+};
+function animDe(m){
+  const c=m.c+" "+m.n+" "+m.d, t=s=>c.toLowerCase().includes(s);
+  if(t("patada"))return"patada"; if(t("golpe")||t("codo")||t("rodilla"))return"golpe";
+  if(t("proyección")||t("derribe")||t("barrido")||t("takedown"))return"proyeccion";
+  if(t("sumisión")||t("posición")||t("suelo")||t("guardia")||t("monta"))return"suelo";
+  if(t("defensa")||t("escape")||t("esquiv"))return"golpe";
+  if(t("bisagra")||t("peso muerto"))return"bisagra";
+  if(t("empuje de piernas")||t("sentadilla"))return"sentadilla";
+  if(t("empuje")||t("press")||t("flexion"))return"empuje";
+  if(t("tracción")||t("dominada")||t("remo"))return"traccion";
+  if(t("core")||t("estabilidad")||t("plancha"))return"core";
+  if(t("caída")||t("rodante")||t("acrobacia")||t("ukemi")||t("flic")||t("mortal"))return"caida";
+  if(t("salto")||t("potencia")||t("aceleración")||t("velocidad")||t("arranque")||t("envión"))return"salto";
+  if(t("equilibrio"))return"equilibrio";
+  if(t("arma")||t("kendo")||t("bo")||t("bokken")||t("shinai")||t("sable")||t("esgrima")||t("estocada"))return"arma";
+  if(t("estiramiento")||t("apertura")||t("movilidad")||t("postura")||t("respiración")||t("exploración")||t("auto-shiatsu")||t("test")||t("secuencia")||t("flexibilidad")||t("qigong")||t("yoga")||t("pilates"))return"estiramiento";
+  if(t("postura")||t("forma")||t("fundamento")||t("kata"))return"postura";
+  return"cardio";
+}
+function figuraSVG(anim,idx,w,label){
+  const a=ANIMS[anim]||ANIMS.postura, q=a[idx%a.length], N="#0A1E3F", O="#C9A961";
+  const sw=w>120?4.5:3.4;
+  const L=(p1,p2,wd)=>`<line x1="${p1[0]}" y1="${p1[1]}" x2="${p2[0]}" y2="${p2[1]}" stroke="${N}" stroke-width="${wd||sw}" stroke-linecap="round"/>`;
+  const J=(p)=>`<circle cx="${p[0]}" cy="${p[1]}" r="${sw*0.55}" fill="${N}"/>`;
+  const s=`<svg viewBox="0 0 200 230" width="${w}" height="${w*1.15}" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="230" fill="#f4f0e6" rx="8"/>
+  <line x1="${q.hip[0]}" y1="${q.hip[1]}" x2="${q.n[0]}" y2="${q.n[1]}" stroke="${N}" stroke-width="${sw*2.2}" stroke-linecap="round"/>
+  ${L(q.n,q.h)+L(q.n,q.e[0])+L(q.e[0],q.m[0])+L(q.n,q.e[1])+L(q.e[1],q.m[1])+L(q.hip,q.k[0])+L(q.k[0],q.f[0])+L(q.hip,q.k[1])+L(q.k[1],q.f[1])}
+  ${J(q.n)+J(q.hip)+J(q.e[0])+J(q.e[1])+J(q.k[0])+J(q.k[1])}
+  <circle cx="${q.h[0]}" cy="${q.h[1]}" r="${sw*2.4}" fill="#f4f0e6" stroke="${N}" stroke-width="${sw}"/>
+  ${w>120?`<path d="M ${a[0].m[1][0]} ${a[0].m[1][1]} Q ${(a[0].m[1][0]+a[2].m[1][0])/2+14} ${(a[0].m[1][1]+a[2].m[1][1])/2-18} ${a[2].m[1][0]} ${a[2].m[1][1]}" fill="none" stroke="${O}" stroke-width="2" stroke-dasharray="4 4"/>`:""}
+  ${label?`<text x="100" y="222" text-anchor="middle" font-family="Helvetica" font-size="10" fill="#5A6473">${["posición inicial","media posición","posición final"][idx%3]}</text>`:""}
+  </svg>`;
+  return s;
+}
+function miniFig(m){return `<div style="display:flex;justify-content:center;margin-bottom:6px">${figuraSVG(animDe(m),1,64)}</div>`}
+let animTimer=null;
+function animBox(m){
+  const an=animDe(m);
+  let i=0;
+  const html=`<div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;background:#f4f0e6;border-radius:10px;padding:10px;margin-bottom:10px">
+    <div id="figGrande">${figuraSVG(an,0,150)}</div>
+    <div style="flex:1;min-width:150px;color:#5A6473;font-size:.8em">Figura animada: <b style="color:#0A1E3F">${["posición inicial","media posición","posición final"].join(" → ")}</b><br>La flecha dorada marca la trayectoria clave del movimiento.</div>
+  </div>`;
+  if(animTimer)clearInterval(animTimer);
+  return {html,start(){animTimer=setInterval(()=>{i++;const g=document.getElementById("figGrande");if(g)g.innerHTML=figuraSVG(an,i,150)},900)}};
+}
+
+// ---- motor ----
+function fill(sel,arr){const s=document.getElementById(sel);arr.forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v;s.appendChild(o)})}
+fill("fDisc",[...new Set(D.map(m=>m.d))].sort());
+fill("fCat",[...new Set(D.map(m=>m.c))].sort());
+fill("fEq",[...new Set(D.map(m=>m.eq))].sort());
+const LIBROS={"35":"El Libro Negro del Entrenamiento (35)","41":"El Mapa del Movimiento (41)","47":"La Sala de Máquinas (47)","54":"El Fuelle y la Malla (54)"};
+function render(){
+  const q=document.getElementById("busqueda").value.toLowerCase();
+  const fd=document.getElementById("fDisc").value,fc=document.getElementById("fCat").value,
+        fn=document.getElementById("fNiv").value,fe=document.getElementById("fEq").value;
+  const lista=D.filter(m=>(!fd||m.d===fd)&&(!fc||m.c===fc)&&(!fn||m.niv==fn)&&(!fe||m.eq===fe)&&(!q||(m.n+" "+m.d+" "+m.c+" "+m.mus).toLowerCase().includes(q)));
+  document.getElementById("contador").textContent=lista.length+" movimientos de "+D.length+" en la biblioteca";
+  const g=document.getElementById("grid");g.innerHTML="";
+  lista.forEach((m,i)=>{
+    const idx=D.indexOf(m);
+    const el=document.createElement("div");el.className="card";
+    el.innerHTML=`<h3>${m.n}</h3>${miniFig(m)}<div class="tags"><span class="tag">${m.d}</span><span class="tag">${m.c}</span><span class="tag niv${m.niv}">Nivel ${NIV[m.niv]}</span><span class="tag">${m.eq}</span></div><p>${m.pas[0]}</p>`;
+    el.onclick=()=>det(idx);g.appendChild(el);
+  });
+}
+function det(i){
+  const m=D[i];
+  const ab=animBox(m);
+  document.getElementById("detBody").innerHTML=`
+    <h2>${m.n}</h2>
+    ${ab.html}
+    <div class="tags"><span class="tag">${m.d}</span><span class="tag">${m.c}</span><span class="tag niv${m.niv}">Nivel ${NIV[m.niv]}</span><span class="tag">Equipo: ${m.eq}</span><span class="tag">Músculos: ${m.mus}</span></div>
+    <h4>Cómo se hace</h4><ol>${m.pas.map(p=>`<li>${p}</li>`).join("")}</ol>
+    <h4>Errores que arruinan el movimiento</h4><ul>${m.err.map(e=>`<li>${e}</li>`).join("")}</ul>
+    <h4>Progresión</h4><p style="font-size:.9em">${m.prog}</p>
+    <div class="fuente">Profundizá en: <b>${(LIBROS[m.fu]||m.fu)}</b> · Atlas del Movimiento · Apicus Partners</div>`;
+  document.getElementById("detalle").style.display="block";
+  ab.start();
+}
+function cerrarDet(){document.getElementById("detalle").style.display="none";if(animTimer)clearInterval(animTimer)}
+function tab(t){
+  ["bib","rut","tim"].forEach(x=>{
+    document.getElementById("sec-"+x).style.display=x===t?"block":"none";
+    document.getElementById("tab-"+x).classList.toggle("act",x===t);
+  });
+}
+// ---- timer ----
+let tInt=null;
+function fmt(s){return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
+function timerStart(){
+  timerStop();
+  const prep=+document.getElementById("tPrep").value,tra=+document.getElementById("tTra").value,
+        des=+document.getElementById("tDes").value,rnd=+document.getElementById("tRnd").value;
+  let fase=prep>0?"PREPARACIÓN":"TRABAJO",resto=fase==="PREPARACIÓN"?prep:tra,ronda=1;
+  document.getElementById("reloj").textContent=fmt(resto);
+  document.getElementById("faseActual").textContent=fase==="PREPARACIÓN"?fase:`${fase} · ronda ${ronda} de ${rnd}`;
+  tInt=setInterval(()=>{
+    resto--;
+    if(resto<0){
+      if(fase==="PREPARACIÓN"){fase="TRABAJO";resto=tra}
+      else if(fase==="TRABAJO"){
+        if(ronda>=rnd){clearInterval(tInt);document.getElementById("reloj").textContent="LISTO";document.getElementById("faseActual").textContent="Protocolo completo — registralo en tu cuaderno";return}
+        if(des>0){fase="DESCANSO";resto=des}else{ronda++;resto=tra}
+      }else{fase="TRABAJO";ronda++;resto=tra}
+    }
+    document.getElementById("reloj").textContent=fmt(Math.max(0,resto));
+    document.getElementById("faseActual").textContent=fase==="TRABAJO"?`TRABAJO · ronda ${ronda} de ${rnd}`:fase==="DESCANSO"?`DESCANSO · después ronda ${ronda+1}`:fase;
+  },1000);
+}
+function timerStop(){if(tInt)clearInterval(tInt)}
+render();
+</script>
+</body>
+</html>

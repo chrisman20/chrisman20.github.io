@@ -93,6 +93,7 @@ body{font-family:Georgia,serif;background:#0a0a0f;color:#e8e4d8;line-height:1.6}
 </style>
 </head>
 <body>
+<div style="background:#C9A961;color:#0a0a0f;text-align:center;font-family:Arial;font-size:0.72em;font-weight:bold;padding:7px 10px;letter-spacing:1px">CATALOGO OFICIAL DE LA COLECCION &middot; TIENDA EN DESARROLLO &mdash; LANZAMIENTO PROXIMO</div>
 <div class="hero">
 <h1>APICUS PARTNERS</h1>
 <h2>Metafusion Aplicada - 54 libros + Manual Maestro</h2>
@@ -138,7 +139,7 @@ body{font-family:Georgia,serif;background:#0a0a0f;color:#e8e4d8;line-height:1.6}
 </div>
 
 <div class="ct"><h3>Empeza hoy</h3><p>Garantia 7 dias</p><a href="#" class="bt">QUIERO EMPEZAR &rarr;</a></div>
-<div class="ft"><p>Apicus Partners &middot; Christian Osvaldo Hillkirk Gane &middot; apicuspartners.com</p></div>
+<div class="ft"><p>Apicus Partners &middot; Christian Osvaldo Hillkirk Gane &middot; chrisman20.github.io &middot; Apicus Partners</p></div>
 <div class="tip" id="tip"></div>
 
 <script>
@@ -175,7 +176,7 @@ var r=l.resumen?'<p class="rs">'+l.resumen+'</p>':'';
 var gt=l.gente?('<div class="mh">CON LA PALABRA DE</div><div class="gente">'+l.gente.split(',').map(function(g){return '<span class="gp">'+g.trim()+'</span>'}).join('')+'</div>'):'';
 var ix=(l.caps&&l.caps.length)?('<div class="mh">&Iacute;NDICE &middot; '+l.caps.length+' CAP&Iacute;TULOS</div><ol class="idx">'+l.caps.map(function(c){return '<li>'+c+'</li>'}).join('')+'</ol>'):'';
 document.getElementById('mci').innerHTML=
-'<div>'+t+c+'</div><div class="mi"><h2>'+l.titulo+'</h2><p class="sb">'+l.subtitulo+'</p><p class="mt2">'+l.n_caps+' capitulos &middot; ~'+(l.palabras/1000).toFixed(0)+'K palabras</p>'+r+gt+ix+'<div class="pb"><em>'+String.fromCharCode(8220)+l.perla+String.fromCharCode(8221)+'</em></div><br><a href="#" class="buy" onclick="return false">Comprar</a></div>';
+'<div>'+t+c+'</div><div class="mi"><h2>'+l.titulo+'</h2><p class="sb">'+l.subtitulo+'</p><p class="mt2">'+l.n_caps+' capitulos &middot; ~'+(l.palabras/1000).toFixed(0)+'K palabras</p>'+r+gt+ix+'<div class="pb"><em>'+String.fromCharCode(8220)+l.perla+String.fromCharCode(8221)+'</em></div><br><a href="#" class="buy" onclick="return false">Disponible proximamente</a></div>';
 document.getElementById('mo').classList.add('on');
 document.body.style.overflow='hidden';
 }
