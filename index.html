@@ -88,6 +88,11 @@ body{font-family:Georgia,serif;background:#0a0a0f;color:#e8e4d8;line-height:1.6}
 .bc .nb{position:absolute;top:8px;left:8px;background:#C9A961;color:#0a0a0f;font-family:Arial;font-weight:bold;font-size:0.6em;padding:3px 8px;border-radius:6px;letter-spacing:1px;z-index:5}
 @keyframes fin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .mo .md{box-shadow:0 30px 80px rgba(0,0,0,0.9)}
+.nv{position:fixed;top:50%;transform:translateY(-50%);z-index:1002;background:rgba(15,15,23,.72);border:1px solid rgba(201,169,97,.45);color:#C9A961;font-size:2.4em;font-family:Georgia,serif;width:58px;height:78px;border-radius:14px;cursor:pointer;line-height:1;transition:background .15s,border-color .15s}
+.nv:hover{background:rgba(201,169,97,.16);border-color:#C9A961}
+.nvL{left:16px}.nvR{right:16px}
+.npos{position:absolute;bottom:10px;left:0;right:0;text-align:center;color:#5A6473;font-family:Arial;font-size:0.68em;letter-spacing:2px;pointer-events:none}
+@media(max-width:700px){.nv{width:44px;height:64px;font-size:1.7em}.nvL{left:6px}.nvR{right:6px}}
 .buy{box-shadow:0 6px 18px rgba(201,169,97,0.3)}
 .bt{box-shadow:0 6px 18px rgba(201,169,97,0.3)}
 </style>
@@ -118,7 +123,9 @@ body{font-family:Georgia,serif;background:#0a0a0f;color:#e8e4d8;line-height:1.6}
 <div class="cat"><div class="gr" id="gr"></div></div>
 
 <div class="mo" id="mo" onclick="if(event.target===this)cm()">
-<div class="md"><button class="mx" onclick="cm()">&times;</button><div class="mc" id="mci"></div></div>
+<button class="nv nvL" onclick="nav(-1)" title="Libro anterior (flecha izquierda)">&#8249;</button>
+<button class="nv nvR" onclick="nav(1)" title="Libro siguiente (flecha derecha)">&#8250;</button>
+<div class="md"><button class="mx" onclick="cm()">&times;</button><div class="mc" id="mci"></div><div class="npos" id="npos"></div></div>
 </div>
 
 <div class="sec">
@@ -169,6 +176,7 @@ d.onclick=function(){op(i)};
 }
 
 function op(i){
+cur=i;
 var l=D[i];
 var t=l.tapa?'<img class="mt" src="'+l.tapa+'">':'';
 var c=l.contra?'<img class="mct" src="'+l.contra+'">':'';
@@ -179,14 +187,29 @@ document.getElementById('mci').innerHTML=
 '<div>'+t+c+'</div><div class="mi"><h2>'+l.titulo+'</h2><p class="sb">'+l.subtitulo+'</p><p class="mt2">'+l.n_caps+' capitulos &middot; ~'+(l.palabras/1000).toFixed(0)+'K palabras</p>'+r+gt+ix+'<div class="pb"><em>'+String.fromCharCode(8220)+l.perla+String.fromCharCode(8221)+'</em></div><br><a href="#" class="buy" onclick="return false">Disponible proximamente</a></div>';
 document.getElementById('mo').classList.add('on');
 document.body.style.overflow='hidden';
+document.getElementById('npos').textContent=(i+1)+' / '+D.length+' \u00b7 LIBRO '+l.num;
+var mci=document.getElementById('mci');mci.scrollTop=0;document.getElementById('mo').scrollTop=0;
+}
+
+var cur=-1;
+function nav(d){
+if(cur<0)return;
+op((cur+d+D.length)%D.length);
 }
 
 function cm(){
 document.getElementById('mo').classList.remove('on');
 document.body.style.overflow='';
+cur=-1;
 }
 
-document.addEventListener('keydown',function(e){if(e.key==='Escape')cm()});
+document.addEventListener('keydown',function(e){
+if(e.key==='Escape')cm();
+if(document.getElementById('mo').classList.contains('on')){
+if(e.key==='ArrowLeft')nav(-1);
+if(e.key==='ArrowRight')nav(1);
+}
+});
 
 /* tooltip flotante: al costado del cursor, sin cortarse, sin tapar la tapa */
 var tip=document.getElementById('tip');
